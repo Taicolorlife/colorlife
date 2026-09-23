@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>廖佳怡｜針織服裝設計・色彩與光影研究</title>
+<meta name="description" content="廖佳怡的個人首頁：針織服裝設計、色彩教學與社區藝術實踐，聚焦色彩、光影與人的心理感受。">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M4GHR26N2W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-M4GHR26N2W');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #090c16;
+    --bg-2: #0e1428;
+    --panel: #101733;
+    --ink: #f3f1ea;
+    --ink-dim: #aab0c9;
+    --teal: #52dcb2;
+    --violet: #9a8cff;
+    --pink: #ff8fc0;
+    --gold: #e8b75d;
+    --line: rgba(243,241,234,0.12);
+    --serif: "Noto Serif TC", "Times New Roman", serif;
+    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    --maxw: 860px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:inherit;}
+  html{scroll-behavior:smooth; scroll-padding-top: calc(72px + env(safe-area-inset-top,0px));}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:300;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;}
+  a{color:inherit;}
+  .container{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 28px;
+  }
+
+  /* ---------- NAV ---------- */
+  header.site-nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    top: env(safe-area-inset-top, 0px);
+    z-index:50;
+    background:rgba(9,12,22,0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .nav-name{
+    font-family:var(--serif);
+    font-size:17px;
+    letter-spacing:0.04em;
+    font-weight:600;
+    color:var(--ink);
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  .nav-links{
+    display:flex;
+    gap:22px;
+    list-style:none;
+    margin:0; padding:0;
+    align-items:center;
+  }
+  .nav-links a{
+    text-decoration:none;
+    font-size:14px;
+    color:var(--ink-dim);
+    transition:color .25s ease;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{ color:var(--teal); }
+  .nav-links .disabled{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:14px;
+    color:var(--ink-dim);
+    opacity:.55;
+    cursor:default;
+  }
+  .soon-badge{
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+  }
+  :focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:3px;
+  }
+
+  /* ---------- HERO / AURORA ---------- */
+  .hero{
+    position:relative;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    overflow:hidden;
+    padding: 120px 28px 80px;
+  }
+  .aurora-field{
+    position:absolute;
+    inset:-15%;
+    z-index:0;
+    filter: blur(60px) saturate(120%);
+    background:
+      radial-gradient(38% 42% at 22% 28%, rgba(82,220,178,0.55), transparent 70%),
+      radial-gradient(44% 46% at 78% 22%, rgba(154,140,255,0.5), transparent 70%),
+      radial-gradient(50% 48% at 55% 75%, rgba(255,143,192,0.38), transparent 70%),
+      radial-gradient(30% 30% at 85% 80%, rgba(232,183,93,0.28), transparent 70%);
+    animation: drift 26s ease-in-out infinite alternate;
+  }
+  @keyframes drift{
+    0%{ transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+    100%{ transform: translate3d(-3%, 2%, 0) rotate(6deg) scale(1.08); }
+  }
+  .hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background: radial-gradient(60% 60% at 50% 45%, rgba(9,12,22,0) 0%, rgba(9,12,22,0.55) 68%, var(--bg) 100%);
+    z-index:1;
+  }
+  .hero-content{ position:relative; z-index:2; max-width:640px; }
+  .eyebrow-thread{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    margin-bottom:22px;
+  }
+  .eyebrow-thread span{
+    width:34px; height:3px; border-radius:2px;
+    display:inline-block;
+  }
+  .eyebrow-thread span:nth-child(1){ background:var(--teal); }
+  .eyebrow-thread span:nth-child(2){ background:var(--violet); }
+  .eyebrow-thread span:nth-child(3){ background:var(--pink); }
+  h1.hero-name{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(40px, 9vw, 68px);
+    line-height:1.15;
+    margin:0 0 18px;
+    letter-spacing:0.01em;
+  }
+  .hero-role{
+    font-size:clamp(16px, 3vw, 19px);
+    color:var(--ink-dim);
+    font-weight:400;
+    margin:0 0 40px;
+  }
+  .cta-primary{
+    display:inline-block;
+    font-family:var(--sans);
+    font-size:15px;
+    font-weight:500;
+    color:var(--bg);
+    background:linear-gradient(120deg, var(--teal), var(--violet) 60%, var(--pink));
+    padding:15px 36px;
+    border-radius:999px;
+    text-decoration:none;
+    letter-spacing:.02em;
+    box-shadow:0 10px 30px -10px rgba(154,140,255,0.55);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .cta-primary:hover, .cta-primary:focus-visible{
+    transform:translateY(-2px);
+    box-shadow:0 14px 36px -8px rgba(154,140,255,0.7);
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{
+    padding:96px 0;
+    border-top:1px solid var(--line);
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:34px;
+  }
+  .section-num{
+    font-family:var(--serif);
+    font-size:14px;
+    color:var(--gold);
+    letter-spacing:.08em;
+  }
+  h2.section-title{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(24px,4vw,30px);
+    margin:0;
+  }
+
+  /* About */
+  .about-grid{
+    display:grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap:48px;
+    align-items:start;
+  }
+  .bio p{
+    font-size:16px;
+    color:var(--ink);
+    max-width:62ch;
+    margin:0 0 20px;
+  }
+  .bio p:last-child{ margin-bottom:0; }
+  .honors{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .honor-card{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 20px;
+    background:linear-gradient(160deg, rgba(82,220,178,0.07), rgba(154,140,255,0.05));
+  }
+  .honor-year{
+    font-family:var(--serif);
+    color:var(--teal);
+    font-size:13px;
+    letter-spacing:.06em;
+    display:block;
+    margin-bottom:6px;
+  }
+  .honor-card p{
+    margin:0;
+    font-size:14.5px;
+    color:var(--ink-dim);
+    line-height:1.6;
+  }
+
+  /* Expertise */
+  .thread-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    list-style:none;
+    margin:0; padding:0;
+  }
+  .thread-list li{
+    position:relative;
+    padding:10px 20px 10px 26px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:14.5px;
+    color:var(--ink);
+    background:var(--panel);
+  }
+  .thread-list li::before{
+    content:"";
+    position:absolute;
+    left:12px; top:50%;
+    width:7px; height:7px;
+    border-radius:50%;
+    transform:translateY(-50%);
+    background:var(--teal);
+  }
+  .thread-list li:nth-child(3n+2)::before{ background:var(--violet); }
+  .thread-list li:nth-child(3n)::before{ background:var(--pink); }
+
+  /* CTA band */
+  .cta-band{
+    text-align:center;
+    padding:90px 0;
+  }
+  .cta-band p{
+    color:var(--ink-dim);
+    font-size:15px;
+    max-width:46ch;
+    margin:0 auto 28px;
+  }
+
+  /* Footer */
+  footer{
+    border-top:1px solid var(--line);
+    padding:48px 0 calc(48px + env(safe-area-inset-bottom,0px));
+  }
+  .footer-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:24px;
+  }
+  .footer-name{
+    font-family:var(--serif);
+    font-size:18px;
+    margin:0 0 6px;
+  }
+  .footer-role{
+    color:var(--ink-dim);
+    font-size:13.5px;
+    margin:0;
+  }
+  .footer-contacts{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    font-size:14px;
+    align-items:flex-start;
+  }
+  .footer-contacts a{
+    text-decoration:none;
+    color:var(--ink-dim);
+    border-bottom:1px solid transparent;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .footer-contacts a:hover, .footer-contacts a:focus-visible{
+    color:var(--teal);
+    border-color:var(--teal);
+  }
+  .footer-note{
+    width:100%;
+    margin-top:32px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--ink-dim);
+    opacity:.7;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .aurora-field{ animation:none; }
+    html{ scroll-behavior:auto; }
+  }
+
+  @media (max-width: 720px){
+    .about-grid{ grid-template-columns:1fr; }
+    .nav-links{ gap:14px; }
+    section{ padding:72px 0; }
+  }
+  @media (max-width: 480px){
+    .nav-name{ font-size:15px; }
+    .nav-links a, .nav-links .disabled{ font-size:12.5px; }
+    .nav-links{ gap:10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="nav-name" href="#home">廖佳怡</a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><span class="disabled">News <span class="soon-badge">Coming soon</span></span></li>
+      <li><span class="disabled">Tools <span class="soon-badge">Coming soon</span></span></li>
+      <li><span class="disabled">Games <span class="soon-badge">Coming soon</span></span></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="home">
+    <div class="aurora-field" aria-hidden="true"></div>
+    <div class="hero-content">
+      <div class="eyebrow-thread" aria-hidden="true"><span></span><span></span><span></span></div>
+      <h1 class="hero-name">廖佳怡</h1>
+      <p class="hero-role">針織服裝設計師・色彩與光影研究者</p>
+      <a class="cta-primary" href="#contact">聯絡我</a>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-num">01</span>
+        <h2 class="section-title">About</h2>
+      </div>
+      <div class="about-grid">
+        <div class="bio">
+          <p>廖佳怡現就讀大同大學設計科學系博士班，預計於 2027 年 7 月畢業。她的研究與創作聚焦於色彩、光影與人的心理感受，並探討色彩在服裝設計中的應用與呈現。</p>
+          <p>具備針織服裝設計、色彩教學與社區藝術實踐經驗，曾任大仁科技大學及教育部深耕計畫課程講師，亦長期投入長者與社區的編織教學，將色彩與織品的知識帶入生活現場。</p>
+        </div>
+        <div class="honors">
+          <div class="honor-card">
+            <span class="honor-year">2022</span>
+            <p>國立臺灣美術館第 38 屆版印年畫首獎</p>
+          </div>
+          <div class="honor-card">
+            <span class="honor-year">2020</span>
+            <p>屏東美展第二類優選</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="expertise">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-num">02</span>
+        <h2 class="section-title">專長</h2>
+      </div>
+      <ul class="thread-list">
+        <li>針織服裝設計</li>
+        <li>色彩教學</li>
+        <li>社區藝術實踐</li>
+        <li>色彩與光影心理研究</li>
+        <li>服裝色彩應用設計</li>
+        <li>課程講師（大仁科技大學・教育部深耕計畫）</li>
+        <li>長者與社區編織教學</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta-band" id="contact-cta">
+    <div class="container">
+      <p>對色彩、光影與織品設計有興趣，歡迎透過 Email 或 Instagram 與我聯繫。</p>
+      <a class="cta-primary" href="mailto:bella.goose2009@gmail.com">聯絡我</a>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-name">廖佳怡</p>
+        <p class="footer-role">針織服裝設計・色彩與光影研究</p>
+      </div>
+      <div class="footer-contacts">
+        <a href="mailto:bella.goose2009@gmail.com">bella.goose2009@gmail.com</a>
+        <a href="https://www.instagram.com/tai_color_life828/" target="_blank" rel="noopener noreferrer">Instagram @tai_color_life828</a>
+      </div>
+    </div>
+    <p class="footer-note">© 2026 廖佳怡. All rights reserved.</p>
+  </div>
+</footer>
+
+</body>
+</html>
