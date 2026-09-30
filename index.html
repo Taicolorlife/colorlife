@@ -768,7 +768,7 @@
         <a class="nav-link" href="#home" aria-current="page">Home</a>
         <button class="soon-link" type="button" data-soon="News" aria-label="News，即將推出">News <span class="coming-soon">即將推出</span></button>
         <button class="soon-link" type="button" data-soon="Tools" aria-label="Tools，即將推出">Tools <span class="coming-soon">即將推出</span></button>
-        <button class="soon-link" type="button" data-soon="Games" aria-label="Games，即將推出">Games <span class="coming-soon">即將推出</span></button>
+        <a class="nav-link" href="game.html">Games</a>
       </nav>
 
       <button class="menu-toggle" type="button" aria-label="開啟導覽選單" aria-expanded="false" aria-controls="mobile-nav">
@@ -782,7 +782,7 @@
       <a class="nav-link" href="#home">Home</a>
       <button class="soon-link" type="button" data-soon="News">News <span class="coming-soon">即將推出</span></button>
       <button class="soon-link" type="button" data-soon="Tools">Tools <span class="coming-soon">即將推出</span></button>
-      <button class="soon-link" type="button" data-soon="Games">Games <span class="coming-soon">即將推出</span></button>
+      <a class="nav-link" href="game.html">Games</a>
     </nav>
   </header>
 
@@ -792,7 +792,7 @@
         <div class="hero-copy" data-reveal>
           <p class="eyebrow">個人首頁</p>
           <h1 id="hero-title">廖佳怡</h1>
-          <p class="identity">設計科學博士生，研究與創作聚焦色彩、光影、人的心理感受與服裝設計。</p>
+          <p class="identity">設計科學博士研究生，研究色彩、光影、色彩心理</p>
           <div class="hero-actions">
             <a class="primary-cta" href="#contact">
               聯絡我
@@ -925,6 +925,19 @@
         toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 1800);
       });
     });
+
+    let currentPage = 'index.html';
+    try {
+      currentPage = decodeURIComponent(window.location.pathname.split('/').pop()) || 'index.html';
+    } catch (error) {
+      currentPage = 'index.html';
+    }
+
+    if (/^[^/\\?#]+\.html?$/i.test(currentPage)) {
+      document.querySelectorAll('a[href="game.html"]').forEach((link) => {
+        link.href = 'game.html?' + new URLSearchParams({ from: currentPage }).toString();
+      });
+    }
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const revealItems = document.querySelectorAll('[data-reveal]');
