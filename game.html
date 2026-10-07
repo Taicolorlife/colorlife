@@ -453,6 +453,32 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
     }
+    [hidden] { display: none !important; }
+    .stage-shell { touch-action: auto; }
+    canvas { touch-action: none; }
+    .screen-overlay { display: flex; justify-content: center; align-items: center; overflow-y: auto; touch-action: pan-y; }
+    .score-form, .score-form input, .score-form button { pointer-events: auto; }
+    .score-form button { touch-action: manipulation; }
+    .score-form button:focus-visible { outline: 3px solid #51366f; outline-offset: 3px; }
+    .overlay-card { max-height: 100%; overflow-y: auto; min-height: 0; touch-action: pan-y; overscroll-behavior: contain; }
+    .score-form { margin: 0 0 18px; text-align: left; }
+    .score-form label { display: block; margin-bottom: 7px; color: #51366f; font-weight: 800; }
+    .score-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #b99cff; border-radius: 12px; background: #fff; color: #3d285d; font: inherit; color-scheme: light; }
+    .score-form button { width: 100%; margin-top: 9px; }
+    .cloud-button { min-height: 42px; padding: 9px 14px; border: 1px solid #b99cff; border-radius: 12px; background: #e8dcff; color: #3d285d; font: inherit; font-weight: 800; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .save-status { margin: 8px 0 0; min-height: 1.4em; color: #65547d; font-size: .85rem; line-height: 1.5; }
+    .leaderboard { width: min(100%, 480px); padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--panel); box-shadow: var(--shadow); }
+    .leaderboard-heading { display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+    .leaderboard h2 { margin: 0; font-size: 1.1rem; color: var(--yellow); }
+    .leaderboard p { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+    .leaderboard-scroll { overflow-x: auto; }
+    .leaderboard table { width: 100%; border-collapse: collapse; text-align: left; font-size: .9rem; }
+    .leaderboard th, .leaderboard td { padding: 10px 6px; border-bottom: 1px solid var(--line); }
+    .leaderboard th:last-child, .leaderboard td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    .leaderboard td:nth-child(2) { overflow-wrap: anywhere; }
+    .leaderboard th:first-child { width: 46px; }
+    @media (max-height: 670px) and (orientation: landscape) { .leaderboard { grid-column: 2; } }
   </style>
 </head>
 <body>
@@ -490,6 +516,12 @@
             <div class="result-chip">本次分數<strong id="finalScore">0</strong></div>
             <div class="result-chip">最高分<strong id="finalHighScore">0</strong></div>
           </div>
+          <section class="score-form" id="scoreForm" aria-label="儲存本次成績" hidden>
+            <label for="nickname">留下暱稱，挑戰雲端排行榜</label>
+            <input id="nickname" name="nickname" type="text" maxlength="20" placeholder="你的暱稱（最多 20 字）" autocomplete="nickname" aria-describedby="saveStatus">
+            <button class="cloud-button" id="saveScoreButton" type="button">儲存分數</button>
+            <p class="save-status" id="saveStatus" role="status" aria-live="polite"></p>
+          </section>
           <button class="main-button" id="startButton" type="button">開始遊戲</button>
         </div>
       </div>
@@ -501,6 +533,20 @@
       <button class="control-button fire" id="fireButton" type="button" aria-label="發射">●<span>發射</span></button>
     </section>
 
+    <section class="leaderboard" aria-labelledby="leaderboardTitle">
+      <div class="leaderboard-heading">
+        <h2 id="leaderboardTitle">🏆 雲端排行榜 · 前 10 名</h2>
+        <button class="cloud-button" id="refreshLeaderboard" type="button">更新</button>
+      </div>
+      <p>分數越高，排名越前面。</p>
+      <p id="leaderboardStatus" role="status" aria-live="polite">正在讀取排行榜…</p>
+      <div class="leaderboard-scroll">
+        <table aria-label="雲端前十名排行榜">
+          <thead><tr><th scope="col">名次</th><th scope="col">玩家暱稱</th><th scope="col">分數</th></tr></thead>
+          <tbody id="leaderboardBody"></tbody>
+        </table>
+      </div>
+    </section>
     <p class="keyboard-tip">鍵盤操作：← → 移動，空白鍵發射</p>
   </main>
 
@@ -529,6 +575,141 @@
       const leftButton = document.getElementById('leftButton');
       const rightButton = document.getElementById('rightButton');
       const fireButton = document.getElementById('fireButton');
+
+      // 對應 Code.gs：GET ?action=top；POST JSON {action:'submit', nickname, score}。
+      const LEADERBOARD_URL = 'https://script.google.com/macros/s/AKfycbxtfvLk3_xBFYK1qlF_4QgShc3yNifzlAxWpJvkKBHs7fh2erX2sRmn45Qr3M8u9dAB/exec';
+      const scoreForm = document.getElementById('scoreForm');
+      const nicknameInput = document.getElementById('nickname');
+      const saveScoreButton = document.getElementById('saveScoreButton');
+      const saveStatus = document.getElementById('saveStatus');
+      const leaderboardBody = document.getElementById('leaderboardBody');
+      const leaderboardStatus = document.getElementById('leaderboardStatus');
+      const refreshLeaderboard = document.getElementById('refreshLeaderboard');
+      let finalScore = null;
+      let savingScore = false;
+      let scoreSaved = false;
+      let leaderboardRequest = 0;
+      try { nicknameInput.value = localStorage.getItem('kawaiiGalaxianNicknameV1') || ''; } catch (_) {}
+
+      async function cloudRequest(options = {}) {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 20000);
+        try {
+          const isSubmit = options.method === 'POST';
+          const response = await fetch(LEADERBOARD_URL + (isSubmit ? '' : '?action=top'), {
+            ...options, signal: controller.signal, redirect: 'follow', credentials: 'omit', cache: 'no-store'
+          });
+          if (!response.ok) throw new Error('伺服器回應失敗（' + response.status + '）。');
+          let data;
+          try { data = await response.json(); }
+          catch (_) { throw new Error('無法讀取排行榜資料，請確認 Apps Script 已部署為任何人可存取。'); }
+          if (!data || data.ok !== true) {
+            throw new Error(data?.error?.message || (typeof data?.error === 'string' ? data.error : '排行榜服務回應失敗。'));
+          }
+          return data;
+        } catch (error) {
+          if (error.name === 'AbortError') throw new Error('連線逾時，請稍後再試。');
+          if (error instanceof TypeError) throw new Error('無法連上雲端，請檢查網路及 Apps Script 的公開部署設定。');
+          throw error;
+        } finally { window.clearTimeout(timeout); }
+      }
+
+      function renderLeaderboard(rows) {
+        if (!Array.isArray(rows)) throw new Error('排行榜資料格式不正確。');
+        const fragment = document.createDocumentFragment();
+        rows.slice(0, 10).forEach((item, index) => {
+          if (!item || typeof item.nickname !== 'string' || !Number.isFinite(Number(item.score))) {
+            throw new Error('排行榜資料格式不正確。');
+          }
+          const tr = document.createElement('tr');
+          [String(index + 1), item.nickname, Number(item.score).toLocaleString('zh-TW')].forEach((value) => {
+            const td = document.createElement('td');
+            td.textContent = value;
+            tr.appendChild(td);
+          });
+          fragment.appendChild(tr);
+        });
+        leaderboardBody.replaceChildren(fragment);
+        leaderboardStatus.textContent = rows.length ? '已更新 · 依雲端排名顯示' : '還沒有成績，來成為第一位玩家吧！';
+      }
+
+      async function loadLeaderboard() {
+        const request = ++leaderboardRequest;
+        refreshLeaderboard.disabled = true;
+        leaderboardStatus.textContent = '正在讀取排行榜…';
+        try {
+          const data = await cloudRequest();
+          if (request === leaderboardRequest) renderLeaderboard(data.leaderboard);
+        } catch (error) {
+          if (request === leaderboardRequest) leaderboardStatus.textContent = error.message + ' 可按「更新」重試。';
+        } finally {
+          if (request === leaderboardRequest) refreshLeaderboard.disabled = false;
+        }
+      }
+
+      async function saveFinalScore() {
+        if (savingScore) return;
+        if (scoreSaved) {
+          saveStatus.textContent = '本次成績已處理，可以重新開始。';
+          return;
+        }
+        if (state !== 'gameover' || finalScore === null) {
+          saveStatus.textContent = '請先完成一場遊戲，再儲存成績。';
+          return;
+        }
+        const nickname = nicknameInput.value.trim();
+        if (!nickname) {
+          saveStatus.textContent = '請先輸入暱稱。';
+          nicknameInput.focus();
+          return;
+        }
+        if (Array.from(nickname.normalize('NFKC')).length > 20) {
+          saveStatus.textContent = '暱稱最多 20 字，請縮短後再按儲存。';
+          nicknameInput.focus();
+          return;
+        }
+        savingScore = true;
+        saveScoreButton.disabled = true;
+        nicknameInput.disabled = true;
+        startButton.disabled = true;
+        saveStatus.textContent = '正在儲存分數…';
+        try {
+          // text/plain 可避免 application/json 的跨網域預檢；須讀取回應才能確認儲存成功。
+          const data = await cloudRequest({
+            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'submit', nickname, score: finalScore })
+          });
+          scoreSaved = true;
+          saveScoreButton.textContent = '已儲存 ✓';
+          saveStatus.textContent = data.saved === false
+            ? '雲端已收到本次成績；未超過你的最佳分數，排行榜保留最高分。'
+            : '分數已儲存到雲端！';
+          try { localStorage.setItem('kawaiiGalaxianNicknameV1', nickname); } catch (_) {}
+          if (Array.isArray(data.leaderboard)) {
+            ++leaderboardRequest;
+            refreshLeaderboard.disabled = false;
+            try { renderLeaderboard(data.leaderboard); }
+            catch (_) { await loadLeaderboard(); }
+          } else { await loadLeaderboard(); }
+        } catch (error) {
+          saveStatus.textContent = error.message + ' 尚未確認儲存成功，可先更新排行榜確認，再重試。';
+          saveScoreButton.textContent = '重試儲存';
+        } finally {
+          savingScore = false;
+          saveScoreButton.disabled = scoreSaved;
+          nicknameInput.disabled = scoreSaved;
+          startButton.disabled = false;
+        }
+      }
+      // 直接處理 click，無須透過原生表單提交，兼容限制表單的 HTML 預覽。
+      saveScoreButton.addEventListener('click', saveFinalScore);
+      nicknameInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.isComposing) {
+          event.preventDefault();
+          saveFinalScore();
+        }
+      });
+      refreshLeaderboard.addEventListener('click', loadLeaderboard);
 
       const WIDTH = 480;
       const HEIGHT = 640;
@@ -658,6 +839,9 @@
       }
 
       function startGame() {
+        if (savingScore) return;
+        finalScore = null;
+        scoreForm.hidden = true;
         state = 'playing';
         score = 0;
         recordAtStart = highScore;
@@ -681,6 +865,14 @@
 
       function endGame() {
         state = 'gameover';
+        finalScore = score;
+        scoreSaved = false;
+        scoreForm.hidden = false;
+        nicknameInput.disabled = false;
+        saveScoreButton.disabled = false;
+        saveScoreButton.textContent = '儲存分數';
+        saveStatus.textContent = '輸入暱稱後儲存本次成績，也可以直接重新開始。';
+        loadLeaderboard();
         input.left = false;
         input.right = false;
         input.fire = false;
@@ -1206,6 +1398,8 @@
       }
 
       window.addEventListener('keydown', (event) => {
+        if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select, button, [contenteditable]')) return;
+        if (savingScore) return;
         if (event.code === 'ArrowLeft') {
           input.left = true;
           event.preventDefault();
@@ -1245,6 +1439,7 @@
       makeStars();
       updateHud();
       render();
+      loadLeaderboard();
       window.requestAnimationFrame(gameLoop);
     })();
   </script>
