@@ -479,6 +479,29 @@
     .leaderboard td:nth-child(2) { overflow-wrap: anywhere; }
     .leaderboard th:first-child { width: 46px; }
     @media (max-height: 670px) and (orientation: landscape) { .leaderboard { grid-column: 2; } }
+    .hud { grid-template-columns: 1fr 1fr auto auto; }
+    .hud-card.level-card { min-width: 78px; }
+    .hud .lives-card { min-width: 132px; }
+    .level-card .hud-value { color: var(--mint); }
+    .life-warning { width: min(100%, 540px); margin: 0; padding: 8px 12px; border: 2px solid #ff7eb3; border-radius: 12px; color: #fff0c9; background: rgba(170,35,65,.45); text-align: center; font-weight: 900; font-size: .9rem; }
+    .stage-shell.last-life { border-color: #ff7eb3; animation: last-life-glow 2.4s ease-in-out infinite; }
+    .screen-overlay.wave-intro .overlay-title { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+    .screen-overlay.wave-intro { background: rgba(12,7,34,.24); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+    .screen-overlay.wave-intro .overlay-card { width: min(100%, 280px); padding: 20px 18px; border-radius: 20px; background: rgba(34,20,64,.68); border: 1px solid rgba(255,255,255,.3); box-shadow: 0 12px 36px rgba(0,0,0,.22); color: #fff9ff; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+    .screen-overlay.wave-intro .mascot { display: none; }
+    .screen-overlay.wave-intro .overlay-title { color: #fff9ff; font-size: 1.9rem; }
+    .screen-overlay.wave-intro .overlay-copy { color: #ffe0ed; margin: 8px 0 12px; }
+    .screen-overlay.wave-intro .wave-badge { color: #e9dfff; background: rgba(185,156,255,.18); font-size: .75rem; margin-bottom: 10px; }
+    .screen-overlay.wave-intro .wave-features { color: #f4edff; background: rgba(255,255,255,.06); padding: 10px; margin-bottom: 14px; font-size: .82rem; }
+    .screen-overlay.wave-intro .main-button { min-height: 42px; padding: 10px 8px; border-radius: 12px; font-size: .88rem; box-shadow: 0 3px 0 rgba(139,104,176,.65); }
+    .wave-badge { display: inline-block; margin: 0 0 12px; padding: 6px 12px; border-radius: 99px; color: #654487; background: #e8dcff; font-weight: 900; font-size: .82rem; }
+    .wave-features { margin: 0 0 18px; padding: 12px; border-radius: 14px; background: rgba(185,156,255,.15); color: #51366f; line-height: 1.7; font-size: .88rem; text-align: left; }
+    .result-chip:last-child { grid-column: 1 / -1; }
+    .control-button:disabled { cursor: default; }
+    .weapon-status { margin: 0; color: var(--mint); font-size: .83rem; text-align: center; font-weight: 800; }
+    @keyframes last-life-glow { 0%, 100% { border-color: #ff557f; box-shadow: var(--shadow), 0 0 20px rgba(255,60,100,.5); } 50% { border-color: #ffbb65; box-shadow: var(--shadow), 0 0 38px rgba(255,160,60,.7); } }
+    @media (prefers-reduced-motion: reduce) { .stage-shell.last-life { animation: none; box-shadow: 0 0 18px rgba(255,80,120,.3); } }
+    @media (max-width: 520px) { .hud { gap: 5px; } .hud-card { flex: 1; min-width: 0; padding: 6px; } .hud .lives-card { min-width: 100px; } .lives { font-size: .82rem; letter-spacing: .03em; } .hud-card.level-card { min-width: 56px; } }
   </style>
 </head>
 <body>
@@ -498,23 +521,31 @@
         <span class="hud-label">最高分</span>
         <span class="hud-value" id="highScore">000000</span>
       </div>
+      <div class="hud-card level-card">
+        <span class="hud-label">關卡</span>
+        <span class="hud-value" id="levelNumber">第 1 關</span>
+      </div>
       <div class="hud-card lives-card">
         <span class="hud-label">生命</span>
-        <span class="lives" id="lives" aria-label="三條生命">♥ ♥ ♥</span>
+        <span class="lives" id="lives" aria-label="五條生命">♥ ♥ ♥ ♥ ♥</span>
       </div>
     </section>
 
+    <p class="life-warning" id="lifeWarning" role="status" hidden>⚠ 最後一條命！小心敵人與子彈</p>
     <section class="stage-shell" aria-label="銀河小蜜蜂遊戲區">
       <canvas id="gameCanvas" width="480" height="640" role="img" aria-label="操控太空船射擊小蜜蜂敵人"></canvas>
 
       <div class="screen-overlay" id="screenOverlay">
         <div class="overlay-card">
           <div class="mascot" aria-hidden="true"><span class="mascot-face"></span></div>
+          <p class="wave-badge" id="waveBadge" hidden></p>
           <h2 class="overlay-title" id="overlayTitle">準備出發！</h2>
           <p class="overlay-copy" id="overlayCopy">移動太空船，擊退從銀河飛來的小蜜蜂。</p>
+          <p class="wave-features" id="waveFeatures" hidden></p>
           <div class="overlay-score" id="overlayScore">
             <div class="result-chip">本次分數<strong id="finalScore">0</strong></div>
             <div class="result-chip">最高分<strong id="finalHighScore">0</strong></div>
+            <div class="result-chip">抵達關卡<strong id="finalLevel">第 1 關</strong></div>
           </div>
           <section class="score-form" id="scoreForm" aria-label="儲存本次成績" hidden>
             <label for="nickname">留下暱稱，挑戰雲端排行榜</label>
@@ -527,6 +558,7 @@
       </div>
     </section>
 
+    <p class="weapon-status" id="weaponStatus" role="status">裝備：單發光彈</p>
     <section class="controls" aria-label="手機觸控操作">
       <button class="control-button" id="leftButton" type="button" aria-label="向左移動">←<span>向左</span></button>
       <button class="control-button" id="rightButton" type="button" aria-label="向右移動">→<span>向右</span></button>
@@ -547,7 +579,7 @@
         </table>
       </div>
     </section>
-    <p class="keyboard-tip">鍵盤操作：← → 移動，空白鍵發射</p>
+    <p class="keyboard-tip">鍵盤操作：← → 移動，空白鍵只負責發射；開始／重新開始請按畫面按鈕</p>
   </main>
 
   <script>
@@ -575,6 +607,13 @@
       const leftButton = document.getElementById('leftButton');
       const rightButton = document.getElementById('rightButton');
       const fireButton = document.getElementById('fireButton');
+      const levelNumber = document.getElementById('levelNumber');
+      const lifeWarning = document.getElementById('lifeWarning');
+      const stageShell = document.querySelector('.stage-shell');
+      const waveBadge = document.getElementById('waveBadge');
+      const waveFeatures = document.getElementById('waveFeatures');
+      const finalLevel = document.getElementById('finalLevel');
+      const weaponStatus = document.getElementById('weaponStatus');
 
       // 對應 Code.gs：GET ?action=top；POST JSON {action:'submit', nickname, score}。
       const LEADERBOARD_URL = 'https://script.google.com/macros/s/AKfycbxtfvLk3_xBFYK1qlF_4QgShc3yNifzlAxWpJvkKBHs7fh2erX2sRmn45Qr3M8u9dAB/exec';
@@ -730,9 +769,12 @@
       let score = 0;
       let highScore = loadHighScore();
       let recordAtStart = highScore;
-      let lives = 3;
+      let lives = 5;
       let wave = 1;
       let waveDelay = 0;
+      let boss = null;
+      let levelElapsed = 0;
+      let suppressSpaceUntilRelease = false;
       let lastTime = performance.now();
       let enemyDiveTimer = 1.4;
       let enemyShotTimer = 1.05;
@@ -793,6 +835,110 @@
         highScoreElement.textContent = formatScore(highScore);
         livesElement.textContent = Array.from({ length: Math.max(0, lives) }, () => '♥').join(' ');
         livesElement.setAttribute('aria-label', lives + ' 條生命');
+        levelNumber.textContent = '第 ' + wave + ' 關';
+        weaponStatus.textContent = '裝備：' + getWeaponPlan(wave).name;
+        syncPlayControls();
+      }
+
+      function getWeaponPlan(number) {
+        if (number < 4) return { name: '單發光彈', interval: .19, speed: 455, offsets: [0], angles: [0], pierce: 1, color: colors.mint };
+        if (number === 4) return { name: '高速雙發光彈', interval: .13, speed: 600, offsets: [-9, 9], angles: [0, 0], pierce: 1, color: colors.blue };
+        if (number === 5) return { name: '高速三向散射', interval: .11, speed: 670, offsets: [-9, 0, 9], angles: [-.16, 0, .16], pierce: 1, color: colors.pink };
+        return { name: '三向穿透光彈', interval: Math.max(.075, .095 - (number - 6) * .002), speed: Math.min(850, 740 + (number - 6) * 10), offsets: [-9, 0, 9], angles: [-.16, 0, .16], pierce: 2, color: colors.yellow };
+      }
+
+      function getWavePlan(number) {
+        const cycle = (number - 1) % 6 + 1;
+        const tier = Math.floor((number - 1) / 6);
+        const names = ['銀河初航', '雙蜂突襲', '蜂后降臨', '三蜂夾擊', '裝甲蜂群', '狂暴蜂王'];
+        const descriptions = [
+          '單隻小蜜蜂俯衝，先熟悉移動與射擊。',
+          '每次有兩隻小蜜蜂同時俯衝，從不同方向逼近。',
+          '巨型蜂后登場！持續射擊削減血量，小心扇形彈幕。',
+          '三隻小蜜蜂同時俯衝，敵方每輪射擊也增加為兩發。',
+          '裝甲蜂需要命中兩次，搭配更大的曲線俯衝。',
+          '更強的蜂王與環形彈幕；血量過半後進入狂暴階段。'
+        ];
+        return {
+          cycle, tier, name: names[cycle - 1],
+          description: descriptions[cycle - 1] + (tier ? ' 第 ' + (tier + 1) + ' 輪：敵人速度、血量與出擊數再提升。' : ''),
+          isBoss: cycle === 3 || cycle === 6,
+          divers: Math.min(5, [1, 2, 0, 3, 3, 0][cycle - 1] + tier),
+          armor: (cycle === 5 ? 2 : 1) + tier,
+          volley: cycle >= 4 ? 2 : 1,
+          bossHP: (cycle === 6 ? 42 : 26) + tier * 16,
+          bulletSpeed: Math.min(330, 175 + number * 8),
+          diveInterval: Math.max(.65, 1.7 - number * .065),
+          shotInterval: Math.max(.55, 1.35 - number * .06)
+        };
+      }
+
+      function clearInput() {
+        input.left = false;
+        input.right = false;
+        input.fire = false;
+        [leftButton, rightButton, fireButton].forEach((button) => button.classList.remove('is-pressed'));
+      }
+
+      function syncPlayControls() {
+        const active = state === 'playing';
+        [leftButton, rightButton, fireButton].forEach((button) => { button.disabled = !active; });
+        stageShell.classList.toggle('last-life', lives === 1 && active);
+        lifeWarning.hidden = !(lives === 1 && active);
+      }
+
+      function showWaveIntro(number) {
+        state = 'waveintro';
+        wave = number;
+        waveDelay = 0;
+        clearInput();
+        playerBullets = [];
+        enemyBullets = [];
+        enemies = [];
+        boss = null;
+        const plan = getWavePlan(wave);
+        overlay.classList.add('wave-intro');
+        waveBadge.hidden = false;
+        waveBadge.textContent = number === 1 ? '銀河旅程 · 準備出發' : '第 ' + (number - 1) + ' 關完成 · 通關獎勵 +500';
+        overlayTitle.textContent = '第 ' + wave + ' 關';
+        overlayCopy.textContent = plan.name;
+        waveFeatures.hidden = false;
+        const weapon = getWeaponPlan(wave);
+        waveFeatures.textContent = plan.description + ' 裝備：' + weapon.name + (wave >= 4 ? '，射擊頻率與彈速提升。' : '。');
+        overlayScore.classList.remove('is-visible');
+        scoreForm.hidden = true;
+        startButton.disabled = false;
+        startButton.textContent = '進入第 ' + wave + ' 關 · 空白鍵';
+        overlay.classList.remove('is-hidden');
+        document.querySelector('.overlay-card').scrollTop = 0;
+        updateHud();
+        syncPlayControls();
+      }
+
+      function beginWave() {
+        if (state !== 'waveintro') return;
+        state = 'playing';
+        levelElapsed = 0;
+        clearInput();
+        resetPlayer();
+        const plan = getWavePlan(wave);
+        enemyDiveTimer = 2.2;
+        enemyShotTimer = 2.6;
+        if (plan.isBoss) {
+          enemies = [];
+          boss = { x: WIDTH / 2, y: -85, width: 116, height: 90,
+            hp: plan.bossHP, maxHP: plan.bossHP, alive: true, entering: true,
+            shotTimer: 1.2, attack: 0, hitFlash: 0, motionTime: 0 };
+        } else {
+          boss = null;
+          createFormation();
+        }
+        overlay.classList.add('is-hidden');
+        // 淡出時維持關卡提示樣式，避免舊白色提示框在切換瞬間閃現。
+        startButton.blur();
+        lastTime = performance.now();
+        updateHud();
+        syncPlayControls();
       }
 
       function createFormation() {
@@ -818,6 +964,7 @@
               row,
               column,
               alive: true,
+              hp: getWavePlan(wave).armor,
               diving: false,
               entering: true,
               diveTime: 0,
@@ -841,29 +988,25 @@
       function startGame() {
         if (savingScore) return;
         finalScore = null;
+        scoreSaved = false;
         scoreForm.hidden = true;
-        state = 'playing';
         score = 0;
         recordAtStart = highScore;
-        lives = 3;
+        lives = 5;
         wave = 1;
-        waveDelay = 0;
-        enemyDiveTimer = 1.6;
-        enemyShotTimer = 1.15;
         screenShake = 0;
         flash = 0;
-        playerBullets = [];
-        enemyBullets = [];
         particles = [];
         floatingScores = [];
-        resetPlayer();
-        createFormation();
-        overlay.classList.add('is-hidden');
-        updateHud();
-        lastTime = performance.now();
+        showWaveIntro(1);
       }
 
       function endGame() {
+        if (state === 'gameover') return;
+        overlay.classList.remove('wave-intro');
+        waveBadge.hidden = true;
+        waveFeatures.hidden = true;
+        finalLevel.textContent = '第 ' + wave + ' 關';
         state = 'gameover';
         finalScore = score;
         scoreSaved = false;
@@ -891,20 +1034,28 @@
         overlayScore.classList.add('is-visible');
         startButton.textContent = '重新開始';
         overlay.classList.remove('is-hidden');
+        clearInput();
+        syncPlayControls();
       }
 
       function firePlayerBullet() {
         if (state !== 'playing' || player.cooldown > 0) return;
-        playerBullets.push({ x: player.x, y: player.y - 23, speed: 455, radius: 4 });
-        player.cooldown = .19;
-        burst(player.x, player.y - 20, colors.mint, 3, 35);
+        const weapon = getWeaponPlan(wave);
+        weapon.offsets.forEach((offset, index) => {
+          const angle = weapon.angles[index];
+          playerBullets.push({ x: player.x + offset, y: player.y - 23,
+            speed: Math.cos(angle) * weapon.speed, vx: Math.sin(angle) * weapon.speed,
+            radius: 4, hitsLeft: weapon.pierce, hitTargets: new Set(), color: weapon.color });
+        });
+        player.cooldown = weapon.interval;
+        burst(player.x, player.y - 20, weapon.color, 3, 35);
       }
 
       function fireEnemyBullet(enemy) {
         const dx = player.x - enemy.x;
         const dy = player.y - enemy.y;
         const length = Math.hypot(dx, dy) || 1;
-        const speed = 185 + wave * 7;
+        const speed = getWavePlan(wave).bulletSpeed;
         enemyBullets.push({
           x: enemy.x,
           y: enemy.y + 12,
@@ -941,14 +1092,17 @@
 
       function chooseDiver() {
         const candidates = enemies.filter((enemy) => enemy.alive && !enemy.diving && !enemy.entering);
-        if (!candidates.length) return;
-        const enemy = candidates[Math.floor(Math.random() * candidates.length)];
-        enemy.diving = true;
-        enemy.diveTime = 0;
-        enemy.diveStartX = enemy.x;
-        enemy.diveStartY = enemy.y;
-        enemy.diveTargetX = player.x + (Math.random() - .5) * 120;
-        enemy.firedInDive = false;
+        const count = Math.min(getWavePlan(wave).divers, candidates.length);
+        for (let index = 0; index < count; index += 1) {
+          const chosen = Math.floor(Math.random() * candidates.length);
+          const enemy = candidates.splice(chosen, 1)[0];
+          enemy.diving = true;
+          enemy.diveTime = 0;
+          enemy.diveStartX = enemy.x;
+          enemy.diveStartY = enemy.y;
+          enemy.diveTargetX = Math.max(40, Math.min(WIDTH - 40, player.x + (index - (count - 1) / 2) * 110));
+          enemy.firedInDive = false;
+        }
       }
 
       function hitPlayer() {
@@ -963,7 +1117,7 @@
 
         if (lives <= 0) {
           updateHud();
-          window.setTimeout(endGame, 380);
+          endGame();
         } else {
           resetPlayer();
           updateHud();
@@ -1007,11 +1161,11 @@
           }
 
           if (enemy.diving) {
-            enemy.diveTime += delta * (.44 + wave * .018);
+            enemy.diveTime += delta * Math.min(.8, .44 + wave * .023);
             const t = enemy.diveTime;
             const eased = Math.min(1, t * t * (3 - 2 * t));
             const side = enemy.column % 2 === 0 ? 1 : -1;
-            enemy.x = enemy.diveStartX + (enemy.diveTargetX - enemy.diveStartX) * eased + Math.sin(t * Math.PI * 2.25) * 72 * side;
+            enemy.x = enemy.diveStartX + (enemy.diveTargetX - enemy.diveStartX) * eased + Math.sin(t * Math.PI * (getWavePlan(wave).cycle === 5 ? 3.5 : 2.25)) * (getWavePlan(wave).cycle === 5 ? 98 : 72) * side;
             enemy.y = enemy.diveStartY + t * (HEIGHT + 90);
 
             if (!enemy.firedInDive && t > .34) {
@@ -1041,20 +1195,79 @@
         enemyDiveTimer -= delta;
         if (enemyDiveTimer <= 0) {
           chooseDiver();
-          enemyDiveTimer = Math.max(.54, 1.65 - wave * .08) + Math.random() * .7;
+          enemyDiveTimer = getWavePlan(wave).diveInterval + Math.random() * .3;
         }
 
         enemyShotTimer -= delta;
         if (enemyShotTimer <= 0) {
           const shooters = enemies.filter((enemy) => enemy.alive && !enemy.entering && enemy.y < HEIGHT - 120);
-          if (shooters.length) fireEnemyBullet(shooters[Math.floor(Math.random() * shooters.length)]);
-          enemyShotTimer = Math.max(.5, 1.24 - wave * .055) + Math.random() * .5;
+          const count = Math.min(shooters.length, getWavePlan(wave).volley);
+          for (let index = 0; index < count; index += 1) {
+            fireEnemyBullet(shooters.splice(Math.floor(Math.random() * shooters.length), 1)[0]);
+          }
+          enemyShotTimer = getWavePlan(wave).shotInterval + Math.random() * .25;
         }
       }
 
+      function updateBoss(delta) {
+        if (!boss || !boss.alive) return;
+        boss.hitFlash = Math.max(0, boss.hitFlash - delta);
+        if (boss.entering) {
+          boss.y += 100 * delta;
+          if (boss.y >= 110) { boss.y = 110; boss.entering = false; }
+          return;
+        }
+        const plan = getWavePlan(wave);
+        const enraged = boss.hp <= boss.maxHP / 2;
+        boss.motionTime += delta * (enraged ? 1.3 : .85);
+        boss.x = WIDTH / 2 + Math.sin(boss.motionTime) * 155;
+        boss.y = 110 + Math.sin(levelElapsed * 1.8) * 22;
+        boss.shotTimer -= delta;
+        if (boss.shotTimer > 0) return;
+        boss.attack += 1;
+        const speed = plan.bulletSpeed * (enraged ? 1.08 : .95);
+        if (plan.cycle === 6 && boss.attack % 3 === 0) {
+          for (let index = 0; index < 10; index += 1) {
+            const angle = index * Math.PI * 2 / 10 + levelElapsed * .2;
+            enemyBullets.push({ x: boss.x, y: boss.y + 30, vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed, radius: 6 });
+          }
+        } else {
+          const angle = Math.atan2(player.y - boss.y, player.x - boss.x);
+          const count = enraged ? 5 : 3;
+          for (let index = 0; index < count; index += 1) {
+            const spread = angle + (index - (count - 1) / 2) * .2;
+            enemyBullets.push({ x: boss.x, y: boss.y + 38, vx: Math.cos(spread) * speed,
+              vy: Math.sin(spread) * speed, radius: 6 });
+          }
+        }
+        boss.shotTimer = Math.max(.5, (enraged ? .85 : 1.35) - plan.tier * .08);
+      }
+
+      function bulletHitsBoss(bullet) {
+        if (!boss || !boss.alive || boss.entering) return false;
+        const nearestX = Math.max(boss.x - boss.width / 2, Math.min(bullet.x, boss.x + boss.width / 2));
+        const nearestY = Math.max(boss.y - boss.height / 2, Math.min(bullet.y, boss.y + boss.height / 2));
+        return (bullet.x - nearestX) ** 2 + (bullet.y - nearestY) ** 2 <= bullet.radius ** 2;
+      }
+
+      function damageBoss() {
+        boss.hp -= 1;
+        boss.hitFlash = .08;
+        if (boss.hp > 0) return;
+        boss.alive = false;
+        const gained = 1500 + wave * 250;
+        score += gained;
+        highScore = Math.max(highScore, score);
+        burst(boss.x, boss.y, colors.yellow, 55, 190);
+        floatingScores.push({ x: boss.x, y: boss.y, value: '+' + gained, life: .75 });
+        enemyBullets = [];
+        updateHud();
+      }
+
       function updateBullets(delta) {
-        playerBullets.forEach((bullet) => { bullet.y -= bullet.speed * delta; });
-        playerBullets = playerBullets.filter((bullet) => bullet.y > -20);
+        playerBullets.forEach((bullet) => { bullet.y -= bullet.speed * delta; bullet.x += (bullet.vx || 0) * delta; });
+        playerBullets = playerBullets.filter((bullet) => bullet.y > -20 && bullet.x > -20 && bullet.x < WIDTH + 20);
 
         enemyBullets.forEach((bullet) => {
           bullet.x += bullet.vx * delta;
@@ -1064,16 +1277,25 @@
 
         for (let bulletIndex = playerBullets.length - 1; bulletIndex >= 0; bulletIndex -= 1) {
           const bullet = playerBullets[bulletIndex];
-          let hit = false;
+          if (!bullet.hitTargets) bullet.hitTargets = new Set();
+          if (bullet.hitsLeft === undefined) bullet.hitsLeft = 1;
+          if (bulletHitsBoss(bullet) && !bullet.hitTargets.has(boss)) {
+            bullet.hitTargets.add(boss);
+            damageBoss();
+            bullet.hitsLeft -= 1;
+          }
           for (const enemy of enemies) {
-            if (!enemy.alive) continue;
+            if (bullet.hitsLeft <= 0) break;
+            if (!enemy.alive || bullet.hitTargets.has(enemy)) continue;
             if (circleHit(bullet, enemy, bullet.radius, 15)) {
-              defeatEnemy(enemy);
-              hit = true;
-              break;
+              bullet.hitTargets.add(enemy);
+              enemy.hp -= 1;
+              if (enemy.hp <= 0) defeatEnemy(enemy);
+              else burst(enemy.x, enemy.y, colors.blue, 4, 60);
+              bullet.hitsLeft -= 1;
             }
           }
-          if (hit) playerBullets.splice(bulletIndex, 1);
+          if (bullet.hitsLeft <= 0) playerBullets.splice(bulletIndex, 1);
         }
 
         for (let index = enemyBullets.length - 1; index >= 0; index -= 1) {
@@ -1113,19 +1335,19 @@
         updateEffects(delta);
         if (state !== 'playing') return;
 
+        levelElapsed += delta;
         updatePlayer(delta);
         updateEnemies(delta);
+        updateBoss(delta);
         updateBullets(delta);
+        if (state !== 'playing') return;
 
-        if (!enemies.some((enemy) => enemy.alive)) {
+        if (!enemies.some((enemy) => enemy.alive) && (!boss || !boss.alive)) {
           waveDelay += delta;
           if (waveDelay > 1.15) {
-            wave += 1;
-            waveDelay = 0;
             score += 500;
             if (score > highScore) highScore = score;
-            createFormation();
-            updateHud();
+            showWaveIntro(wave + 1);
           }
         }
       }
@@ -1174,6 +1396,14 @@
           }
         });
         context.globalAlpha = 1;
+        if (lives === 1 && state === 'playing') {
+          // 柔和、慢速的背景色警告；減少動態設定下改用固定色。
+          const pulse = prefersReducedMotion ? 0 : (Math.sin(elapsed * Math.PI * 2 / 2.4) + 1) / 2;
+          const alpha = prefersReducedMotion ? .18 : .14 + pulse * .18;
+          const green = Math.round(45 + pulse * 100);
+          context.fillStyle = 'rgba(255,' + green + ',75,' + alpha + ')';
+          context.fillRect(0, 0, WIDTH, HEIGHT);
+        }
       }
 
       function drawEnemy(enemy) {
@@ -1183,7 +1413,7 @@
         const tilt = enemy.diving ? Math.sin(enemy.diveTime * 8) * .28 : Math.sin(elapsed * 2 + enemy.phase) * .05;
         context.rotate(tilt);
         const wingLift = Math.sin(elapsed * 9 + enemy.phase) * 3;
-        const bodyColor = [colors.yellow, colors.pink, colors.mint, colors.lavender][enemy.row % 4];
+        const bodyColor = enemy.hp > 1 ? colors.blue : [colors.yellow, colors.pink, colors.mint, colors.lavender][enemy.row % 4];
 
         context.fillStyle = 'rgba(138,200,255,.55)';
         context.strokeStyle = 'rgba(255,255,255,.7)';
@@ -1292,13 +1522,17 @@
       function drawBullets() {
         playerBullets.forEach((bullet) => {
           const glow = context.createRadialGradient(bullet.x, bullet.y, 0, bullet.x, bullet.y, 12);
-          glow.addColorStop(0, 'rgba(121,239,208,.8)');
+          glow.addColorStop(0, bullet.color || colors.mint);
           glow.addColorStop(1, 'rgba(121,239,208,0)');
           context.fillStyle = glow;
           context.fillRect(bullet.x - 12, bullet.y - 12, 24, 24);
+          context.save();
+          context.translate(bullet.x, bullet.y);
+          context.rotate(Math.atan2(bullet.vx || 0, bullet.speed));
           context.fillStyle = colors.white;
-          roundedRect(context, bullet.x - 2.5, bullet.y - 10, 5, 16, 3);
+          roundedRect(context, -2.5, -10, 5, bullet.hitsLeft > 1 ? 24 : 16, 3);
           context.fill();
+          context.restore();
         });
 
         enemyBullets.forEach((bullet) => {
@@ -1333,12 +1567,48 @@
         context.globalAlpha = 1;
       }
 
+      function drawBoss() {
+        if (!boss || !boss.alive) return;
+        const angry = boss.hp <= boss.maxHP / 2;
+        context.save();
+        context.translate(boss.x, boss.y);
+        const wing = prefersReducedMotion ? 0 : Math.sin(elapsed * 8) * 6;
+        context.fillStyle = 'rgba(138,200,255,.65)';
+        context.strokeStyle = colors.white;
+        context.lineWidth = 2;
+        context.beginPath();
+        context.ellipse(-54, wing, 28, 20, -.5, 0, Math.PI * 2);
+        context.ellipse(54, -wing, 28, 20, .5, 0, Math.PI * 2);
+        context.fill(); context.stroke();
+        context.fillStyle = boss.hitFlash > 0 ? colors.white : (angry ? colors.pink : colors.yellow);
+        context.strokeStyle = '#6c3d70';
+        context.lineWidth = 3;
+        context.beginPath(); context.ellipse(0, 2, 56, 44, 0, 0, Math.PI * 2); context.fill(); context.stroke();
+        context.fillStyle = '#74418f';
+        roundedRect(context, -48, 7, 96, 12, 6); context.fill();
+        roundedRect(context, -36, 27, 72, 9, 4); context.fill();
+        context.fillStyle = '#40234e';
+        context.beginPath(); context.arc(-18, -9, 5, 0, Math.PI * 2); context.arc(18, -9, 5, 0, Math.PI * 2); context.fill();
+        context.strokeStyle = '#40234e'; context.lineWidth = 3;
+        context.beginPath(); context.arc(0, -1, 8, 0, Math.PI); context.stroke();
+        context.fillStyle = colors.yellow;
+        context.beginPath(); context.moveTo(-24, -41); context.lineTo(-28, -64); context.lineTo(-10, -53);
+        context.lineTo(0, -70); context.lineTo(10, -53); context.lineTo(28, -64); context.lineTo(24, -41); context.closePath(); context.fill(); context.stroke();
+        context.restore();
+        context.fillStyle = 'rgba(7,3,20,.8)'; roundedRect(context, 65, 36, 350, 32, 10); context.fill();
+        context.fillStyle = 'rgba(255,255,255,.16)'; roundedRect(context, 76, 53, 328, 7, 3); context.fill();
+        context.fillStyle = angry ? colors.pink : colors.yellow;
+        roundedRect(context, 76, 53, 328 * Math.max(0, boss.hp / boss.maxHP), 7, 3); context.fill();
+        context.font = '800 11px system-ui, sans-serif'; context.textAlign = 'center'; context.fillStyle = colors.white;
+        context.fillText(getWavePlan(wave).name + (angry ? ' · 狂暴' : '') + '  ' + boss.hp + '/' + boss.maxHP, WIDTH / 2, 48);
+      }
+
       function drawWaveLabel() {
         if (state !== 'playing') return;
         context.fillStyle = 'rgba(255,255,255,.48)';
         context.font = '700 12px ui-rounded, system-ui, sans-serif';
         context.textAlign = 'right';
-        context.fillText('第 ' + wave + ' 波', WIDTH - 16, 24);
+        context.fillText('第 ' + wave + ' 關 · ' + getWavePlan(wave).name, WIDTH - 16, 24);
       }
 
       function render() {
@@ -1351,6 +1621,7 @@
         }
 
         enemies.forEach(drawEnemy);
+        drawBoss();
         drawBullets();
         drawPlayer();
         drawEffects();
@@ -1372,12 +1643,10 @@
       }
 
       function setInput(name, pressed, element) {
+        if (state !== 'playing') { clearInput(); return; }
         input[name] = pressed;
         if (element) element.classList.toggle('is-pressed', pressed);
-        if (pressed && name === 'fire') {
-          if (state === 'ready' || state === 'gameover') startGame();
-          else firePlayerBullet();
-        }
+        if (pressed && name === 'fire') firePlayerBullet();
       }
 
       function bindHoldButton(element, name) {
@@ -1398,8 +1667,18 @@
       }
 
       window.addEventListener('keydown', (event) => {
-        if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select, button, [contenteditable]')) return;
-        if (savingScore) return;
+        // 關卡過場可用空白鍵進入；這次按鍵只切換關卡，放開後才能射擊。
+        if (state === 'waveintro' && event.code === 'Space' && !event.isComposing) {
+          event.preventDefault();
+          if (!event.repeat) {
+            suppressSpaceUntilRelease = true;
+            beginWave();
+          }
+          return;
+        }
+        if (event.code === 'Space' && suppressSpaceUntilRelease) { event.preventDefault(); return; }
+        if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select, button, [contenteditable]') && event.target !== fireButton && event.target !== leftButton && event.target !== rightButton) return;
+        if (savingScore || state !== 'playing') return;
         if (event.code === 'ArrowLeft') {
           input.left = true;
           event.preventDefault();
@@ -1408,7 +1687,6 @@
           event.preventDefault();
         } else if (event.code === 'Space') {
           event.preventDefault();
-          if (state === 'ready' || state === 'gameover') startGame();
           input.fire = true;
           firePlayerBullet();
         }
@@ -1417,10 +1695,11 @@
       window.addEventListener('keyup', (event) => {
         if (event.code === 'ArrowLeft') input.left = false;
         if (event.code === 'ArrowRight') input.right = false;
-        if (event.code === 'Space') input.fire = false;
+        if (event.code === 'Space') { input.fire = false; suppressSpaceUntilRelease = false; }
       });
 
       window.addEventListener('blur', () => {
+        suppressSpaceUntilRelease = false;
         input.left = false;
         input.right = false;
         input.fire = false;
@@ -1429,7 +1708,10 @@
         fireButton.classList.remove('is-pressed');
       });
 
-      startButton.addEventListener('click', startGame);
+      startButton.addEventListener('click', () => {
+        if (state === 'waveintro') beginWave();
+        else if (state === 'ready' || state === 'gameover') startGame();
+      });
       bindHoldButton(leftButton, 'left');
       bindHoldButton(rightButton, 'right');
       bindHoldButton(fireButton, 'fire');
