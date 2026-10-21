@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7c4dff">
+<title>彩虹猜拳 🌈 連線對戰</title>
+<style>
+  :root{
+    --ink:#2d1b4e;
+    --pink:#ff5fa2; --orange:#ff9f43; --yellow:#ffd93d; --green:#2ed8a3; --blue:#4dabff; --purple:#8e5cff;
+    --card:#ffffff;
+    box-sizing:border-box;
+  }
+  *{box-sizing:inherit; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; min-height:100%;}
+  body{
+    font-family:ui-rounded,"SF Pro Rounded","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(135deg,#ff9ad5,#ffc27a,#fff08a,#9af0c8,#8fd0ff,#c4a4ff);
+    background-size:400% 400%;
+    animation:bgShift 18s ease infinite;
+    min-height:100svh;
+    padding:max(14px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));
+    overflow-x:hidden;
+  }
+  @keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .float{position:fixed; font-size:28px; opacity:.55; pointer-events:none; animation:floaty 7s ease-in-out infinite; z-index:0;}
+  .float:nth-child(1){left:6%; top:12%;}
+  .float:nth-child(2){right:8%; top:20%; animation-delay:-2s;}
+  .float:nth-child(3){left:12%; bottom:14%; animation-delay:-4s;}
+  .float:nth-child(4){right:10%; bottom:18%; animation-delay:-1s;}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-16px) rotate(8deg)}}
+
+  .wrap{position:relative; z-index:1; width:100%; max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:14px;}
+  h1{
+    margin:6px 0 0; text-align:center; font-size:clamp(30px,9vw,42px); font-weight:900; letter-spacing:.04em;
+    background:linear-gradient(90deg,var(--pink),var(--orange),#e8b800,var(--green),var(--blue),var(--purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(255,255,255,.9));
+  }
+  .sub{margin:-8px 0 0; text-align:center; font-weight:700; font-size:14px; opacity:.8;}
+
+  .card{
+    background:var(--card); border-radius:28px; padding:20px 18px;
+    border:3px solid #fff; box-shadow:0 8px 0 rgba(120,70,200,.18), 0 18px 40px rgba(120,70,200,.18);
+  }
+  .hidden{display:none !important;}
+  label.lab{display:block; font-weight:800; font-size:14px; margin-bottom:8px;}
+  input[type=text],input[type=tel]{
+    width:100%; min-height:56px; padding:0 16px; font:inherit; font-size:18px; font-weight:800; color:var(--ink);
+    border:3px solid #d9c8ff; border-radius:18px; background:#faf7ff; outline:none;
+  }
+  input:focus{border-color:var(--pink); background:#fff;}
+  input.code{text-align:center; letter-spacing:.5em; font-size:26px; padding-left:.5em;}
+
+  .btn{
+    width:100%; min-height:60px; padding:12px 18px; border:0; border-radius:20px; cursor:pointer;
+    font:inherit; font-size:18px; font-weight:900; letter-spacing:.04em; color:#fff;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active{transform:translateY(5px);}
+  .btn.pink{background:linear-gradient(135deg,#ff7eb6,#ff4f8f); box-shadow:0 6px 0 #c7336b;}
+  .btn.pink:active{box-shadow:0 1px 0 #c7336b;}
+  .btn.blue{background:linear-gradient(135deg,#6cc0ff,#3f8cff); box-shadow:0 6px 0 #2a63c4;}
+  .btn.blue:active{box-shadow:0 1px 0 #2a63c4;}
+  .btn.green{background:linear-gradient(135deg,#46e8b3,#1fbf8c); box-shadow:0 6px 0 #138a65;}
+  .btn.green:active{box-shadow:0 1px 0 #138a65;}
+  .btn.ghost{background:#fff; color:var(--ink); border:3px solid #d9c8ff; box-shadow:0 5px 0 #d9c8ff; min-height:52px; font-size:16px;}
+  .btn.ghost:active{box-shadow:0 1px 0 #d9c8ff;}
+  .btn:disabled{filter:grayscale(.6); opacity:.55; cursor:not-allowed; transform:none;}
+
+  .or{display:flex; align-items:center; gap:10px; margin:18px 0; font-weight:800; font-size:13px; opacity:.6;}
+  .or::before,.or::after{content:""; flex:1; height:3px; border-radius:3px; background:linear-gradient(90deg,var(--pink),var(--blue));}
+  .join-row{display:grid; grid-template-columns:1fr; gap:12px;}
+  .notice{padding:12px 14px; border-radius:16px; background:#fff6cf; border:2px dashed #e8b800; font-size:13px; font-weight:700; line-height:1.6;}
+  .stack{display:flex; flex-direction:column; gap:12px;}
+
+  /* room */
+  .room-head{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .room-code{
+    font-size:38px; font-weight:900; letter-spacing:.14em; line-height:1;
+    background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .chip{padding:6px 12px; border-radius:999px; background:#f1e9ff; font-weight:800; font-size:13px; white-space:nowrap;}
+  .room-tip{margin:6px 0 0; font-size:13px; font-weight:700; opacity:.7;}
+
+  .players{display:grid; gap:10px; grid-template-columns:repeat(3,1fr);}
+  .pcard{
+    position:relative; padding:12px 6px 10px; border-radius:22px; text-align:center;
+    background:var(--bg,#f4eeff); border:3px solid #fff; box-shadow:0 5px 0 rgba(0,0,0,.08);
+    transition:transform .2s ease;
+  }
+  .pcard.me{outline:3px dashed rgba(45,27,78,.35); outline-offset:2px;}
+  .pcard.win{animation:winPulse .9s ease-in-out infinite alternate; box-shadow:0 0 0 4px #ffd93d, 0 10px 24px rgba(255,180,0,.5);}
+  .pcard.empty{background:rgba(255,255,255,.55); border:3px dashed #cdb8ff; box-shadow:none; opacity:.85;}
+  @keyframes winPulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+  .avatar{width:46px; height:46px; margin:0 auto 6px; border-radius:50%; background:#fff; display:grid; place-items:center; font-size:28px;}
+  .pname{font-weight:900; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 2px;}
+  .ptag{display:inline-block; margin-top:2px; font-size:10px; font-weight:900; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.85);}
+  .hand{height:54px; display:grid; place-items:center; font-size:40px; line-height:1;}
+  .hand.small{font-size:13px; font-weight:800;}
+  .hand.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1);}
+  @keyframes pop{from{transform:scale(.2) rotate(-30deg); opacity:0}to{transform:scale(1) rotate(0); opacity:1}}
+  .pscore{font-weight:900; font-size:14px;}
+  .crown{position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:24px;}
+
+  .banner{
+    text-align:center; padding:16px 12px; border-radius:22px; font-size:24px; font-weight:900;
+    animation:pop .5s cubic-bezier(.3,1.6,.5,1);
+  }
+  .banner small{display:block; margin-top:4px; font-size:14px; font-weight:800; opacity:.8;}
+  .banner.win{background:linear-gradient(135deg,#fff2a8,#ffd93d);}
+  .banner.lose{background:linear-gradient(135deg,#e3dcff,#c9bcff);}
+  .banner.draw{background:linear-gradient(135deg,#d3f7ff,#a9e8ff);}
+  .status{text-align:center; font-weight:800; font-size:15px; padding:4px 0;}
+
+  .picks{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .pick{
+    border:0; border-radius:24px; padding:14px 0 10px; cursor:pointer; font:inherit; color:#fff;
+    display:flex; flex-direction:column; align-items:center; gap:2px; min-height:112px;
+    transition:transform .08s ease, box-shadow .08s ease, opacity .2s;
+  }
+  .pick .e{font-size:48px; line-height:1.1;}
+  .pick .t{font-size:15px; font-weight:900;}
+  .pick.r{background:linear-gradient(160deg,#ff8a8a,#ff4f6d); box-shadow:0 7px 0 #b92f49;}
+  .pick.p{background:linear-gradient(160deg,#6fe0ff,#3f8cff); box-shadow:0 7px 0 #2a63c4;}
+  .pick.s{background:linear-gradient(160deg,#ffe46b,#ff9f43); box-shadow:0 7px 0 #c06a12;}
+  .pick:active:not(:disabled){transform:translateY(6px); box-shadow:0 1px 0 rgba(0,0,0,.25);}
+  .pick:disabled{cursor:default; opacity:.4;}
+  .pick.chosen{opacity:1; transform:translateY(-3px) scale(1.05); outline:4px solid #fff; box-shadow:0 0 0 4px var(--purple), 0 9px 0 rgba(0,0,0,.18);}
+
+  .toast{
+    position:fixed; left:50%; bottom:max(24px,env(safe-area-inset-bottom)); transform:translate(-50%,20px); z-index:50;
+    max-width:90vw; padding:12px 20px; border-radius:999px; background:var(--ink); color:#fff; font-weight:800; font-size:14px;
+    opacity:0; pointer-events:none; transition:all .25s ease;
+  }
+  .toast.show{opacity:1; transform:translate(-50%,0);}
+  .loading{text-align:center; font-weight:800; padding:8px;}
+
+  @media (max-width:360px){
+    .avatar{width:38px;height:38px;font-size:22px;}
+    .pick .e{font-size:40px;}
+    .room-code{font-size:32px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="float" aria-hidden="true">✊</div>
+<div class="float" aria-hidden="true">✋</div>
+<div class="float" aria-hidden="true">✌️</div>
+<div class="float" aria-hidden="true">⭐</div>
+
+<div class="wrap">
+  <h1>🌈 彩虹猜拳</h1>
+  <p class="sub">2～3 人連線對戰・房號 4 位數</p>
+
+  <!-- 首頁 -->
+  <section class="card stack" id="home">
+    <div class="notice hidden" id="configNotice">
+      ⚠️ 尚未設定 Firebase。請打開檔案，把 <b>firebaseConfig</b> 換成你自己專案的設定（含 databaseURL）後再重新整理。
+    </div>
+    <div>
+      <label class="lab" for="nameInput">你的暱稱</label>
+      <input type="text" id="nameInput" maxlength="8" placeholder="例如：小彩虹" autocomplete="off">
+    </div>
+    <button class="btn pink" id="createBtn" type="button">🎈 建立新房間</button>
+    <div class="or">或輸入房號加入</div>
+    <div class="join-row">
+      <input class="code" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="codeInput" placeholder="0000" autocomplete="off" aria-label="4 位數房號">
+      <button class="btn blue" id="joinBtn" type="button">🚪 加入房間</button>
+    </div>
+  </section>
+
+  <!-- 房間 -->
+  <section class="stack hidden" id="room">
+    <div class="card">
+      <div class="room-head">
+        <div>
+          <div style="font-size:12px;font-weight:800;opacity:.6">房號</div>
+          <div class="room-code" id="roomCode">0000</div>
+        </div>
+        <div style="text-align:right">
+          <div class="chip" id="roundChip">等待開始</div>
+        </div>
+      </div>
+      <p class="room-tip" id="roomTip"></p>
+    </div>
+
+    <div class="players" id="players"></div>
+
+    <div class="card stack" id="actionCard">
+      <div id="banner"></div>
+      <div class="status" id="statusText"></div>
+      <div class="picks hidden" id="picks">
+        <button class="pick r" data-ch="r" type="button"><span class="e">✊</span><span class="t">石頭</span></button>
+        <button class="pick s" data-ch="s" type="button"><span class="e">✌️</span><span class="t">剪刀</span></button>
+        <button class="pick p" data-ch="p" type="button"><span class="e">✋</span><span class="t">布</span></button>
+      </div>
+      <button class="btn green hidden" id="startBtn" type="button">▶ 開始遊戲</button>
+      <button class="btn ghost" id="copyBtn" type="button">🔗 複製邀請連結</button>
+      <button class="btn ghost" id="leaveBtn" type="button">🏃 離開房間</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  /* ========= 請改成你自己的 Firebase 設定 =========
+     Firebase 主控台 → 專案設定 → 你的應用程式（網頁）→ 複製 firebaseConfig
+     並在 Realtime Database 建立資料庫後，貼上 databaseURL。 */
+  const firebaseConfig = {
+    apiKey: "AIzaSyAT90SRyNc48i8L87sWYP7s8Ik_PmVjzpk",
+    authDomain: "mumu-11f4f.firebaseapp.com",
+    databaseURL: "https://mumu-11f4f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mumu-11f4f",
+    storageBucket: "mumu-11f4f.firebasestorage.app",
+    messagingSenderId: "930538888729",
+    appId: "1:930538888729:web:b3beedb8ff7228c6a25488",
+    measurementId: "G-5CW9MNP84Y"
+  };
+  /* ================================================ */
+
+  const MAX_PLAYERS = 3;
+  const MIN_PLAYERS = 2;
+  const HAND = { r: '✊', p: '✋', s: '✌️' };
+  const HAND_NAME = { r: '石頭', p: '布', s: '剪刀' };
+  const BEATS = { r: 's', s: 'p', p: 'r' };
+  const COLORS = ['#ffd3e8', '#cfe6ff', '#fff0b3'];
+  const ANIMALS = ['🐰', '🐬', '🐥'];
+  const NAME_KEY = 'rainbowRpsName';
+
+  const $ = (id) => document.getElementById(id);
+  const homeEl = $('home'), roomEl = $('room');
+  const nameInput = $('nameInput'), codeInput = $('codeInput');
+  const createBtn = $('createBtn'), joinBtn = $('joinBtn');
+  const startBtn = $('startBtn'), copyBtn = $('copyBtn'), leaveBtn = $('leaveBtn');
+  const playersEl = $('players'), picksEl = $('picks');
+  const bannerEl = $('banner'), statusEl = $('statusText');
+  const roomCodeEl = $('roomCode'), roundChip = $('roundChip'), roomTip = $('roomTip');
+  const toastEl = $('toast');
+
+  const configured = !/YOUR_/.test(firebaseConfig.databaseURL) && !/YOUR_/.test(firebaseConfig.apiKey);
+  let db = null;
+  if (configured && window.firebase) {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+  } else {
+    $('configNotice').classList.remove('hidden');
+    createBtn.disabled = true;
+    joinBtn.disabled = true;
+  }
+
+  let me = null;          // { id, name }
+  let roomCode = '';
+  let roomRef = null;
+  let playerRef = null;
+  let roomHandler = null;
+  let room = null;
+  let leaving = false;
+  let busy = false;
+  let resolving = false;
+
+  /* ---------- 小工具 ---------- */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  let toastTimer = 0;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  }
+  function newId() {
+    return 'p' + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-3);
+  }
+  function getName() {
+    let n = nameInput.value.trim().slice(0, 8);
+    if (!n) n = '玩家' + String(Math.floor(Math.random() * 90) + 10);
+    nameInput.value = n;
+    try { localStorage.setItem(NAME_KEY, n); } catch (e) { /* 忽略 */ }
+    return n;
+  }
+  function makePlayer(name, colorIdx) {
+    return { n: name, c: colorIdx, j: Date.now(), s: 0 };
+  }
+  function sortedPlayers(r) {
+    const p = (r && r.players) || {};
+    return Object.keys(p).map((id) => Object.assign({ id }, p[id]))
+      .sort((a, b) => (a.j - b.j) || (a.id < b.id ? -1 : 1));
+  }
+  function judge(list) { // list: [[id, choice]]
+    const set = new Set(list.map((x) => x[1]));
+    if (set.size !== 2) return { type: 'draw', winners: [] };
+    const [a, b] = [...set];
+    const win = BEATS[a] === b ? a : b;
+    return { type: 'win', winners: list.filter((x) => x[1] === win).map((x) => x[0]) };
+  }
+  function setBusy(v) {
+    busy = v;
+    createBtn.disabled = v || !configured;
+    joinBtn.disabled = v || !configured;
+  }
+
+  /* ---------- 建立 / 加入 ---------- */
+  async function createRoom() {
+    if (!db || busy) return;
+    setBusy(true);
+    const name = getName();
+    const pid = newId();
+    try {
+      for (let i = 0; i < 10; i++) {
+        const code = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+        const ref = db.ref('rooms/' + code);
+        const res = await ref.transaction((cur) => {
+          if (cur && cur.players && Object.keys(cur.players).length > 0) return; // 房號已被使用
+          return { createdAt: Date.now(), status: 'lobby', round: 0, players: { [pid]: makePlayer(name, 0) } };
+        });
+        if (res.committed) {
+          enterRoom(code, pid, name);
+          setBusy(false);
+          return;
+        }
+      }
+      toast('建立失敗，請再試一次');
+    } catch (err) {
+      toast('連線失敗，請檢查 Firebase 設定與網路');
+    }
+    setBusy(false);
+  }
+
+  async function joinRoom() {
+    if (!db || busy) return;
+    const code = codeInput.value.replace(/\D/g, '').slice(0, 4);
+    if (code.length !== 4) { toast('請輸入 4 位數房號'); return; }
+    setBusy(true);
+    const name = getName();
+    const pid = newId();
+    const ref = db.ref('rooms/' + code);
+    let reason = '';
+    try {
+      await ref.once('value'); // 先取得最新資料，避免交易以空資料誤判
+      const res = await ref.transaction((cur) => {
+        reason = '';
+        if (!cur || !cur.players) { reason = 'notfound'; return; }
+        const ids = Object.keys(cur.players);
+        if (ids.length >= MAX_PLAYERS) { reason = 'full'; return; }
+        if (cur.status === 'playing') { reason = 'playing'; return; }
+        const used = new Set(ids.map((k) => cur.players[k].c));
+        let c = 0;
+        while (used.has(c)) c++;
+        cur.players[pid] = makePlayer(name, c);
+        return cur;
+      });
+      if (res.committed) {
+        enterRoom(code, pid, name);
+      } else if (reason === 'full') {
+        toast('房間已滿（最多 3 人）');
+      } else if (reason === 'playing') {
+        toast('這一回合進行中，請稍後再加入');
+      } else {
+        toast('找不到這個房間');
+      }
+    } catch (err) {
+      toast('連線失敗，請檢查 Firebase 設定與網路');
+    }
+    setBusy(false);
+  }
+
+  function enterRoom(code, pid, name) {
+    me = { id: pid, name };
+    roomCode = code;
+    leaving = false;
+    resolving = false;
+    roomRef = db.ref('rooms/' + code);
+    playerRef = roomRef.child('players/' + pid);
+    playerRef.onDisconnect().remove();
+    roomHandler = roomRef.on('value', onRoom);
+    roomCodeEl.textContent = code;
+    homeEl.classList.add('hidden');
+    roomEl.classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function backHome(msg) {
+    if (roomRef && roomHandler) roomRef.off('value', roomHandler);
+    roomRef = null; playerRef = null; roomHandler = null; room = null; me = null;
+    roomEl.classList.add('hidden');
+    homeEl.classList.remove('hidden');
+    if (msg) toast(msg);
+  }
+
+  async function leaveRoom() {
+    if (!roomRef || leaving) return;
+    leaving = true;
+    const ref = roomRef, pid = me.id, pref = playerRef;
+    try {
+      pref.onDisconnect().cancel();
+      await ref.transaction((cur) => {
+        if (!cur || !cur.players) return cur;
+        delete cur.players[pid];
+        if (Object.keys(cur.players).length === 0) return null; // 沒人了就關閉房間
+        return cur;
+      });
+    } catch (e) { /* 忽略 */ }
+    backHome();
+  }
+
+  /* ---------- 房間事件 ---------- */
+  function onRoom(snap) {
+    if (leaving) return;
+    room = snap.val();
+    if (!room || !room.players || !room.players[me.id]) {
+      backHome('房間已關閉');
+      return;
+    }
+    render();
+    maybeResolve();
+  }
+
+  function maybeResolve() {
+    const list = sortedPlayers(room);
+    if (room.status === 'playing') {
+      if (list.length < MIN_PLAYERS) {
+        if (list[0].id === me.id) resetToLobby();
+      } else if (list.every((p) => p.ch) && !resolving) {
+        resolving = true;
+        roomRef.transaction((cur) => {
+          if (!cur || cur.status !== 'playing' || !cur.players) return;
+          const ids = Object.keys(cur.players);
+          if (ids.length < MIN_PLAYERS || !ids.every((k) => cur.players[k].ch)) return;
+          const res = judge(ids.map((k) => [k, cur.players[k].ch]));
+          res.winners.forEach((k) => { cur.players[k].s = (cur.players[k].s || 0) + 1; });
+          cur.status = 'reveal';
+          cur.result = res.winners.length ? { t: res.type, w: res.winners } : { t: res.type };
+          return cur;
+        }).then(() => { resolving = false; }, () => { resolving = false; });
+      }
+    } else if (room.status === 'reveal' && list.length < MIN_PLAYERS && list[0].id === me.id) {
+      resetToLobby();
+    }
+  }
+
+  function resetToLobby() {
+    roomRef.transaction((cur) => {
+      if (!cur || !cur.players || cur.status === 'lobby') return;
+      if (Object.keys(cur.players).length >= MIN_PLAYERS && cur.status !== 'playing') return;
+      cur.status = 'lobby';
+      delete cur.result;
+      Object.keys(cur.players).forEach((k) => { delete cur.players[k].ch; });
+      return cur;
+    });
+  }
+
+  function startRound() {
+    if (!roomRef) return;
+    roomRef.transaction((cur) => {
+      if (!cur || !cur.players) return;
+      const ids = Object.keys(cur.players);
+      if (ids.length < MIN_PLAYERS || cur.status === 'playing') return;
+      cur.status = 'playing';
+      cur.round = (cur.round || 0) + 1;
+      delete cur.result;
+      ids.forEach((k) => { delete cur.players[k].ch; });
+      return cur;
+    });
+  }
+
+  function choose(ch) {
+    if (!room || room.status !== 'playing') return;
+    const mine = room.players[me.id];
+    if (!mine || mine.ch) return;
+    playerRef.child('ch').set(ch);
+  }
+
+  /* ---------- 畫面 ---------- */
+  function render() {
+    const list = sortedPlayers(room);
+    const hostId = list[0].id;
+    const isHost = hostId === me.id;
+    const status = room.status;
+    const mine = room.players[me.id];
+    const result = room.result || null;
+    const winners = (result && result.w) || [];
+
+    roundChip.textContent = status === 'lobby' ? '等待開始' : '第 ' + room.round + ' 回合';
+    roomTip.textContent = status === 'lobby'
+      ? '把房號告訴朋友，滿 2 人就能開始（最多 3 人）。'
+      : '';
+
+    // 玩家卡片
+    let html = '';
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      const p = list[i];
+      if (!p) {
+        html += '<div class="pcard empty"><div class="avatar">➕</div><div class="pname">等待加入</div><div class="hand small">空位</div><div class="pscore">&nbsp;</div></div>';
+        continue;
+      }
+      const isWin = status === 'reveal' && winners.indexOf(p.id) > -1;
+      let hand;
+      if (status === 'reveal') hand = '<div class="hand pop">' + (HAND[p.ch] || '❔') + '</div>';
+      else if (status === 'playing') hand = '<div class="hand small">' + (p.ch ? '✅ 已出拳' : '🤔 思考中…') + '</div>';
+      else hand = '<div class="hand small">🎀 準備中</div>';
+      html += '<div class="pcard' + (p.id === me.id ? ' me' : '') + (isWin ? ' win' : '') + '" style="--bg:' + COLORS[p.c % 3] + '">' +
+        (isWin ? '<span class="crown">👑</span>' : '') +
+        '<div class="avatar">' + ANIMALS[p.c % 3] + '</div>' +
+        '<div class="pname">' + esc(p.n) + '</div>' +
+        '<span class="ptag">' + (p.id === hostId ? '房主' : (p.id === me.id ? '你' : '玩家')) + '</span>' +
+        hand +
+        '<div class="pscore">⭐ ' + (p.s || 0) + '</div></div>';
+    }
+    playersEl.innerHTML = html;
+
+    // 橫幅 / 狀態 / 按鈕
+    bannerEl.innerHTML = '';
+    picksEl.classList.add('hidden');
+    startBtn.classList.add('hidden');
+    statusEl.textContent = '';
+
+    if (status === 'lobby') {
+      if (list.length < MIN_PLAYERS) {
+        statusEl.textContent = '👀 還在等朋友加入…';
+      } else if (isHost) {
+        statusEl.textContent = '人到齊了，按下開始吧！';
+        startBtn.textContent = '▶ 開始遊戲';
+        startBtn.classList.remove('hidden');
+      } else {
+        statusEl.textContent = '⏳ 等待房主開始遊戲';
+      }
+    } else if (status === 'playing') {
+      picksEl.classList.remove('hidden');
+      const locked = !!mine.ch;
+      picksEl.querySelectorAll('.pick').forEach((b) => {
+        b.disabled = locked;
+        b.classList.toggle('chosen', locked && b.dataset.ch === mine.ch);
+      });
+      const waiting = list.filter((p) => !p.ch).length;
+      statusEl.textContent = locked ? '✅ 你出了' + HAND_NAME[mine.ch] + '，等待其他 ' + waiting + ' 位玩家…' : '👇 快選一個出拳！';
+    } else if (status === 'reveal') {
+      let cls, title, sub = '';
+      if (!result || result.t === 'draw') {
+        cls = 'draw'; title = '🤝 平手！';
+        sub = '大家的拳形成了平局，再來一回合吧';
+      } else if (winners.indexOf(me.id) > -1) {
+        cls = 'win'; title = '🎉 你贏了！';
+        sub = winners.length > 1 ? '共 ' + winners.length + ' 人獲勝' : '';
+      } else {
+        cls = 'lose'; title = '😵 這回合輸了';
+        sub = '獲勝：' + winners.map((id) => (room.players[id] ? room.players[id].n : '')).filter(Boolean).map(esc).join('、');
+      }
+      bannerEl.innerHTML = '<div class="banner ' + cls + '">' + title + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
+      if (isHost && list.length >= MIN_PLAYERS) {
+        startBtn.textContent = '🔄 下一回合';
+        startBtn.classList.remove('hidden');
+      } else {
+        statusEl.textContent = '⏳ 等待房主開始下一回合';
+      }
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  createBtn.addEventListener('click', createRoom);
+  joinBtn.addEventListener('click', joinRoom);
+  startBtn.addEventListener('click', startRound);
+  leaveBtn.addEventListener('click', leaveRoom);
+  picksEl.addEventListener('click', (e) => {
+    const b = e.target.closest('.pick');
+    if (b) choose(b.dataset.ch);
+  });
+  codeInput.addEventListener('input', () => { codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 4); });
+  codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoom(); });
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') createRoom(); });
+
+  copyBtn.addEventListener('click', async () => {
+    const url = location.origin + location.pathname + '?room=' + roomCode;
+    const text = location.protocol === 'file:' ? '房號：' + roomCode : url;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('已複製！傳給朋友吧 🎈');
+    } catch (e) {
+      const t = document.createElement('textarea');
+      t.value = text; document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); toast('已複製！傳給朋友吧 🎈'); } catch (err) { toast('房號：' + roomCode); }
+      t.remove();
+    }
+  });
+
+  // 初始化：帶入暱稱與網址中的房號
+  try { nameInput.value = localStorage.getItem(NAME_KEY) || ''; } catch (e) { /* 忽略 */ }
+  const roomParam = new URLSearchParams(location.search).get('room');
+  if (roomParam && /^\d{4}$/.test(roomParam)) codeInput.value = roomParam;
+})();
+</script>
+</body>
+</html>
