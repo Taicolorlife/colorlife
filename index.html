@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="廖佳怡個人首頁，研究與創作聚焦色彩、光影、人的心理感受與服裝設計。">
   <meta name="theme-color" content="#07131b">
   <title>廖佳怡｜個人首頁</title>
@@ -46,7 +46,7 @@
 
     body {
       margin: 0;
-      min-width: 320px;
+      min-width: 0;
       color: var(--ink);
       background:
         radial-gradient(circle at 8% 2%, rgba(66, 231, 185, 0.15), transparent 25rem),
@@ -310,7 +310,7 @@
       align-items: center;
       gap: 12px;
       color: var(--mint);
-      font-size: 0.82rem;
+      font-size: 0.984rem;
       font-weight: 700;
       letter-spacing: 0.2em;
       text-transform: uppercase;
@@ -326,7 +326,7 @@
     h1 {
       margin: 0;
       font-family: "Songti TC", "Noto Serif TC", "PMingLiU", serif;
-      font-size: clamp(4.2rem, 10vw, 8.5rem);
+      font-size: clamp(2.352rem, 5.6vw, 4.76rem);
       font-weight: 600;
       line-height: 0.96;
       letter-spacing: -0.06em;
@@ -337,7 +337,7 @@
       max-width: 650px;
       margin: 32px 0 0;
       color: #d8e7e4;
-      font-size: clamp(1.12rem, 2vw, 1.42rem);
+      font-size: clamp(1.0752rem, 1.92vw, 1.3632rem);
       line-height: 1.75;
       letter-spacing: 0.02em;
     }
@@ -464,7 +464,7 @@
     .section-kicker {
       margin: 0 0 14px;
       color: var(--mint);
-      font-size: .8rem;
+      font-size: .96rem;
       font-weight: 720;
       letter-spacing: .22em;
       text-transform: uppercase;
@@ -473,7 +473,7 @@
     h2 {
       margin: 0;
       font-family: "Songti TC", "Noto Serif TC", "PMingLiU", serif;
-      font-size: clamp(2.35rem, 5vw, 4.6rem);
+      font-size: clamp(1.645rem, 3.5vw, 3.22rem);
       font-weight: 600;
       line-height: 1.16;
       letter-spacing: -.045em;
@@ -516,7 +516,7 @@
     .biography {
       margin: 2px 0 0;
       color: #d5e2df;
-      font-size: clamp(1.03rem, 1.45vw, 1.18rem);
+      font-size: clamp(1.236rem, 1.74vw, 1.416rem);
       line-height: 2.05;
       text-align: justify;
       text-wrap: pretty;
@@ -562,7 +562,7 @@
 
     .expertise-name {
       max-width: 12em;
-      font-size: 1.06rem;
+      font-size: 1.272rem;
       line-height: 1.55;
       letter-spacing: .02em;
     }
@@ -626,7 +626,7 @@
     .game-desc {
       margin: 12px 0 0;
       color: var(--muted);
-      font-size: 1rem;
+      font-size: 1.2rem;
       line-height: 1.8;
     }
 
@@ -679,7 +679,7 @@
     .contact-copy {
       margin: 22px 0 0;
       color: var(--muted);
-      font-size: 1.02rem;
+      font-size: 1.224rem;
     }
 
     .contact-details {
@@ -786,7 +786,7 @@
       .hero { padding-top: 130px; }
       .hero-grid { grid-template-columns: 1fr; gap: 52px; }
       .hero-copy { max-width: 700px; }
-      .portrait-frame { width: min(86vw, 500px); justify-self: center; }
+      .portrait-frame { width: min(100%, 500px); justify-self: center; }
       .scroll-note { display: none; }
       .about-layout { grid-template-columns: 1fr; gap: 32px; }
       .expertise-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -800,8 +800,8 @@
       .brand-mark { width: 28px; height: 28px; }
       .container { width: min(100% - 28px, var(--max)); }
       .hero { min-height: auto; padding: 120px 0 68px; }
-      h1 { font-size: clamp(4rem, 23vw, 6.8rem); }
-      .identity { margin-top: 26px; font-size: 1.08rem; }
+      h1 { font-size: clamp(2.24rem, 12.88vw, 3.808rem); }
+      .identity { margin-top: 26px; font-size: 1.0368rem; }
       .hero-actions { margin-top: 32px; }
       .primary-cta { width: 100%; }
       .portrait-frame { width: 100%; max-height: 690px; }
@@ -824,6 +824,163 @@
       .toast { right: 14px; bottom: 14px; left: 14px; text-align: center; }
     }
 
+
+    /* Responsive refinement: constrain content, not the user's zoom. */
+    :root {
+      --page-gutter: max(24px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    }
+    html { overflow-x: hidden; }
+    @supports (overflow: clip) {
+      html, body { overflow-x: clip; }
+    }
+    .ambient-lights {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .site-header { padding-inline: var(--page-gutter); }
+    .container, .site-footer {
+      width: min(var(--max), calc(100% - var(--page-gutter) - var(--page-gutter)));
+    }
+    .mobile-nav { width: 100%; }
+    .hero-grid > *, .about-layout > *, .expertise-grid > *, .game-grid > *,
+    .nav-shell > *, .site-footer > *, .footer-links {
+      min-width: 0;
+    }
+    .hero-copy, .expertise-header, .game-header { max-width: 100%; }
+    .portrait-frame { margin: 0; min-width: 0; max-width: 100%; }
+    .portrait-frame img { max-width: 100%; }
+    .identity, .biography, .expertise-name, .game-name, .game-desc,
+    .contact-copy, .contact-chip, .footer-links, .toast {
+      overflow-wrap: anywhere;
+    }
+    .eyebrow { flex-wrap: wrap; }
+    .eyebrow::before { flex-shrink: 0; }
+    .hero-actions { flex-wrap: wrap; }
+    .primary-cta { max-width: 100%; text-align: center; }
+    .primary-cta svg, .game-play svg, .brand-mark, .menu-toggle { flex-shrink: 0; }
+    .contact-chip > span { min-width: 0; overflow-wrap: anywhere; }
+    .nav-shell { gap: clamp(10px, 2vw, 24px); }
+    .desktop-nav { flex-shrink: 0; gap: 7px; }
+    .nav-link, .soon-link { min-height: 44px; }
+
+    /* Original navigation: text links on the transparent dark header. */
+    .mobile-nav .nav-link, .mobile-nav .soon-link { margin-block: 3px; }
+    .mobile-nav.is-open {
+      max-height: min(420px, calc(100svh - 100px));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .game-card {
+      border-color: rgba(224,255,248,.38);
+      background:
+        linear-gradient(125deg,
+          rgba(255,255,255,.38) 0%,
+          rgba(204,249,235,.24) 32%,
+          rgba(151,216,239,.18) 72%,
+          rgba(255,255,255,.10) 100%);
+      background-size: 150% 150%;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.48), 0 16px 38px rgba(0,0,0,.18);
+      backdrop-filter: blur(20px) saturate(125%);
+      -webkit-backdrop-filter: blur(20px) saturate(125%);
+    }
+    .game-card:hover, .game-card:focus-visible {
+      background:
+        linear-gradient(125deg,
+          rgba(255,255,255,.43) 0%,
+          rgba(204,249,235,.28) 32%,
+          rgba(151,216,239,.22) 72%,
+          rgba(255,255,255,.13) 100%);
+      background-size: 150% 150%;
+      background-position: 100% 50%;
+      border-color: rgba(230,255,249,.64);
+    }
+    .game-card .game-name { color: #f7fffc; }
+    .game-card .game-desc { color: #e2efee; }
+    .game-card .game-index, .game-card .game-play { color: #c4fce9; }
+    .contact-chip:nth-child(1) {
+      color: #effffb;
+      background: linear-gradient(120deg, #164b48, #1c485d);
+      border-color: rgba(127,245,207,.32);
+    }
+    .contact-chip:nth-child(2) {
+      color: #fff0f8;
+      background: linear-gradient(120deg, #594071, #804263);
+      border-color: rgba(255,145,199,.38);
+    }
+    a.contact-chip:hover, a.contact-chip:focus-visible {
+      color: #fff;
+      filter: brightness(1.15);
+    }
+    @media (max-width: 900px) {
+      .hero-grid, .about-layout { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 620px) {
+      :root {
+        --page-gutter: max(14px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+      }
+      .brand { min-width: 0; gap: 8px; }
+      .nav-shell { gap: 10px; }
+      .expertise-grid, .game-grid { grid-template-columns: minmax(0, 1fr); }
+      .game-card { gap: 22px; }
+      .identity { line-height: 1.7; }
+      .contact-chip { width: 100%; }
+      .toast { white-space: normal; border-radius: 18px; }
+    }
+    @media (max-width: 359px) {
+      .nav-shell { padding-inline-start: 10px; }
+      .about-card, .game-card { padding-inline: 18px; }
+      .contact-panel { padding-inline: 16px; }
+      .contact-chip { padding-inline: 12px; }
+    }
+    @media (max-height: 500px) and (orientation: landscape) {
+      .hero { min-height: auto; padding-top: 112px; }
+      .portrait-frame { width: min(100%, 360px); }
+      .mobile-nav.is-open { max-height: calc(100svh - 100px); }
+    }
+
+
+    /* Translucent expertise cards: light passes through each tinted surface. */
+    .expertise-item:nth-child(1) { --expertise-tint: 160, 234, 209; }
+    .expertise-item:nth-child(2) { --expertise-tint: 160, 210, 241; }
+    .expertise-item:nth-child(3) { --expertise-tint: 241, 206, 171; }
+    .expertise-item:nth-child(4) { --expertise-tint: 237, 189, 204; }
+    .expertise-item:nth-child(5) { --expertise-tint: 197, 224, 169; }
+    .expertise-item:nth-child(6) { --expertise-tint: 240, 222, 165; }
+    .expertise-item {
+      color: #f0fbf7;
+      border-color: rgba(239,255,249,.30);
+      background:
+        linear-gradient(125deg,
+          rgba(255,255,255,.28) 0%,
+          rgba(var(--expertise-tint),.14) 40%,
+          rgba(var(--expertise-tint),.045) 76%,
+          rgba(255,255,255,.09) 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.40), inset 0 -1px 0 rgba(255,255,255,.035), 0 14px 32px rgba(0,0,0,.12);
+      backdrop-filter: blur(18px) saturate(120%);
+      -webkit-backdrop-filter: blur(18px) saturate(120%);
+    }
+    .expertise-item:hover {
+      border-color: rgba(239,255,249,.48);
+      background:
+        linear-gradient(125deg,
+          rgba(255,255,255,.33) 0%,
+          rgba(var(--expertise-tint),.18) 40%,
+          rgba(var(--expertise-tint),.065) 76%,
+          rgba(255,255,255,.12) 100%);
+    }
+    .expertise-index { color: #c4f5e8; }
+    .expertise-name { color: #f0fbf7; font-weight: 600; }
+    .desktop-nav > .nav-link:focus-visible,
+    .desktop-nav > .soon-link:focus-visible,
+    .mobile-nav > .nav-link:focus-visible,
+    .mobile-nav > .soon-link:focus-visible {
+      outline: 2px solid #f5fffc;
+      outline-offset: 3px;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after {
@@ -837,8 +994,10 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳至主要內容</a>
-  <div class="aurora-orb orb-one" aria-hidden="true"></div>
-  <div class="aurora-orb orb-two" aria-hidden="true"></div>
+  <div class="ambient-lights" aria-hidden="true">
+    <div class="aurora-orb orb-one"></div>
+    <div class="aurora-orb orb-two"></div>
+  </div>
 
   <header class="site-header">
     <div class="nav-shell">
@@ -981,13 +1140,13 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>
               </svg>
-              bella.goose20092gmail.com
+              <span>bella.goose20092gmail.com</span>
             </span>
             <a class="contact-chip" href="https://www.instagram.com/tai_color_life828/" target="_blank" rel="noopener noreferrer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
                 <rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
               </svg>
-              tai_color_life828
+              <span>tai_color_life828</span>
             </a>
           </div>
         </div>
