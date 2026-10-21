@@ -567,6 +567,87 @@
       letter-spacing: .02em;
     }
 
+    .game-header {
+      max-width: 720px;
+      margin-bottom: 42px;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .game-card {
+      min-height: 230px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      color: var(--ink);
+      background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      text-decoration: none;
+      transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+    }
+
+    .game-card:hover,
+    .game-card:focus-visible {
+      transform: translateY(-5px);
+      border-color: rgba(127,245,207,.28);
+      background: linear-gradient(145deg, rgba(127,245,207,.08), rgba(169,146,255,.035));
+    }
+
+    .game-card:focus-visible {
+      outline: 2px solid var(--mint);
+      outline-offset: 3px;
+    }
+
+    .game-index {
+      color: var(--mint);
+      font-size: .73rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+    }
+
+    .game-name {
+      margin: 10px 0 0;
+      font-family: "Songti TC", "Noto Serif TC", "PMingLiU", serif;
+      font-size: clamp(1.65rem, 3vw, 2.2rem);
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -.02em;
+    }
+
+    .game-desc {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .game-play {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--mint);
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .game-play svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 200ms ease;
+    }
+
+    .game-card:hover .game-play svg,
+    .game-card:focus-visible .game-play svg { transform: translate(3px, -3px); }
+
     .contact-section { padding-bottom: 44px; }
 
     .contact-panel {
@@ -728,6 +809,8 @@
       .about-card { padding: 28px 22px; border-radius: 26px; }
       .biography { text-align: left; line-height: 1.95; }
       .expertise-grid { grid-template-columns: 1fr; }
+      .game-grid { grid-template-columns: 1fr; }
+      .game-card { min-height: 200px; padding: 24px 22px; }
       .expertise-item { min-height: 138px; }
       .contact-panel { padding: 38px 20px; border-radius: 26px; }
       .contact-details { align-items: stretch; flex-direction: column; }
@@ -768,7 +851,7 @@
         <a class="nav-link" href="#home" aria-current="page">Home</a>
         <button class="soon-link" type="button" data-soon="News" aria-label="News，即將推出">News <span class="coming-soon">即將推出</span></button>
         <button class="soon-link" type="button" data-soon="Tools" aria-label="Tools，即將推出">Tools <span class="coming-soon">即將推出</span></button>
-        <a class="nav-link" href="game.html">Games</a>
+        <a class="nav-link" href="#games">Games</a>
       </nav>
 
       <button class="menu-toggle" type="button" aria-label="開啟導覽選單" aria-expanded="false" aria-controls="mobile-nav">
@@ -782,7 +865,7 @@
       <a class="nav-link" href="#home">Home</a>
       <button class="soon-link" type="button" data-soon="News">News <span class="coming-soon">即將推出</span></button>
       <button class="soon-link" type="button" data-soon="Tools">Tools <span class="coming-soon">即將推出</span></button>
-      <a class="nav-link" href="game.html">Games</a>
+      <a class="nav-link" href="#games">Games</a>
     </nav>
   </header>
 
@@ -856,6 +939,33 @@
             <span class="expertise-index">06</span>
             <span class="expertise-name">色彩與服裝應用設計</span>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="games" aria-labelledby="games-title">
+      <div class="container">
+        <header class="game-header" data-reveal>
+          <p class="section-kicker">遊戲</p>
+          <h2 id="games-title">Game</h2>
+        </header>
+        <div class="game-grid">
+          <a class="game-card" href="game.html" data-reveal>
+            <div>
+              <span class="game-index">01</span>
+              <h3 class="game-name">對戰小蜜蜂</h3>
+              <p class="game-desc">操控太空船，射擊成群飛來的小蜜蜂，挑戰你的最高分。</p>
+            </div>
+            <span class="game-play">開始遊戲 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+          <a class="game-card" href="rps.html" data-reveal>
+            <div>
+              <span class="game-index">02</span>
+              <h3 class="game-name">猜拳對戰</h3>
+              <p class="game-desc">2～3 人連線猜拳，建立 4 位數房號，邀請朋友一起玩。</p>
+            </div>
+            <span class="game-play">開始遊戲 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
         </div>
       </div>
     </section>
