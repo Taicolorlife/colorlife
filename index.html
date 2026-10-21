@@ -981,6 +981,161 @@
       outline-offset: 3px;
     }
 
+
+    /* Mobile editorial typography. Custom scale inspired by luxury brand sites,
+       not a reproduction of proprietary fonts or measured brand CSS. */
+    @media (max-width: 767px), (max-width: 932px) and (max-height: 500px) and (orientation: landscape) {
+      :root {
+        --page-gutter: max(clamp(20px, 5.2vw, 28px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+        --mobile-type: "Helvetica Neue", Arial, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      body {
+        font-family: var(--mobile-type);
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.8;
+        letter-spacing: .015em;
+      }
+      .brand {
+        font-size: .8125rem;
+        font-weight: 600;
+        line-height: 1.4;
+        letter-spacing: .12em;
+      }
+      .brand-mark { width: 26px; height: 26px; }
+      .mobile-nav .nav-link, .mobile-nav .soon-link {
+        font-size: .875rem;
+        font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: .045em;
+      }
+      .coming-soon {
+        font-size: .625rem;
+        font-weight: 500;
+        letter-spacing: .035em;
+      }
+      .hero { padding-block: 112px 56px; }
+      .hero-grid { gap: 38px; }
+      .hero-copy { width: 100%; }
+      .eyebrow, .section-kicker {
+        font-family: var(--mobile-type);
+        font-size: .6875rem;
+        font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: .18em;
+      }
+      .eyebrow { gap: 10px; margin-bottom: 18px; }
+      .eyebrow::before { width: 26px; }
+      .section-kicker { margin-bottom: 12px; }
+      h1 {
+        font-family: var(--mobile-type);
+        font-size: clamp(2rem, calc(1.5rem + 2vw), 2.375rem);
+        font-weight: 500;
+        line-height: 1.35;
+        letter-spacing: .10em;
+        text-wrap: balance;
+      }
+      .identity {
+        max-width: 30em;
+        margin-top: 20px;
+        font-size: .9375rem;
+        font-weight: 400;
+        line-height: 1.85;
+        letter-spacing: .035em;
+        text-wrap: pretty;
+      }
+      .hero-actions { margin-top: 26px; }
+      .primary-cta {
+        min-height: 48px;
+        padding: 13px 22px;
+        font-size: .8125rem;
+        font-weight: 600;
+        line-height: 1.5;
+        letter-spacing: .10em;
+      }
+      .section { padding-block: 56px; }
+      h2 {
+        font-family: var(--mobile-type);
+        font-size: clamp(1.375rem, calc(1.125rem + 1vw), 1.625rem);
+        font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: .065em;
+      }
+      .about-layout { gap: 24px; }
+      .biography {
+        margin-top: 0;
+        font-size: .9375rem;
+        font-weight: 400;
+        line-height: 1.95;
+        letter-spacing: .025em;
+        text-align: start;
+      }
+      .expertise-header, .game-header { margin-bottom: 26px; }
+      .expertise-item { min-height: 124px; padding: 22px; }
+      .expertise-index, .game-index {
+        font-size: .625rem;
+        font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: .16em;
+      }
+      .expertise-name {
+        max-width: 100%;
+        font-family: var(--mobile-type);
+        font-size: .9375rem;
+        font-weight: 500;
+        line-height: 1.7;
+        letter-spacing: .04em;
+      }
+      .game-name {
+        margin-top: 12px;
+        font-family: var(--mobile-type);
+        font-size: 1.1875rem;
+        font-weight: 500;
+        line-height: 1.6;
+        letter-spacing: .055em;
+      }
+      .game-desc {
+        margin-top: 12px;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.9;
+        letter-spacing: .025em;
+      }
+      .game-play {
+        font-size: .8125rem;
+        font-weight: 500;
+        line-height: 1.6;
+        letter-spacing: .08em;
+      }
+      .contact-copy {
+        margin-top: 16px;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.85;
+        letter-spacing: .035em;
+      }
+      .contact-details { margin-top: 26px; }
+      .contact-chip {
+        font-size: .8125rem;
+        font-weight: 400;
+        line-height: 1.7;
+        letter-spacing: .025em;
+      }
+      .site-footer {
+        gap: 16px;
+        font-size: .75rem;
+        font-weight: 400;
+        line-height: 1.85;
+        letter-spacing: .03em;
+      }
+      .footer-links { gap: 8px 16px; }
+      .toast { font-size: .8125rem; line-height: 1.7; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after {
@@ -1235,3 +1390,5 @@
   </script>
 </body>
 </html>
+
+                                           
