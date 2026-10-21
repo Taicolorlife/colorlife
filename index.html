@@ -1733,6 +1733,16 @@
       .hero-copy::after { width:96px; height:4px; margin-top:24px; }
     }
     @media (max-width:360px) { .brand-mark { width:18px; } }
+    /* Hero and About share the same inner content edges at every breakpoint. */
+    :root { --about-content-inset:clamp(32px,6vw,74px); }
+    .about-card { padding-inline:var(--about-content-inset); }
+    .hero-grid { padding-inline:calc(var(--about-content-inset) + 1px); }
+    @media (max-width:620px) {
+      :root { --about-content-inset:22px; }
+    }
+    @media (max-width:359px) {
+      :root { --about-content-inset:18px; }
+    }
 </style>
 </head>
 <body>
@@ -2431,5 +2441,3 @@
   </script>
 </body>
 </html>
-
-            
