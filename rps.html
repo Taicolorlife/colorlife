@@ -40,6 +40,13 @@
     filter:drop-shadow(0 3px 0 rgba(255,255,255,.9));
   }
   .sub{margin:-8px 0 0; text-align:center; font-weight:700; font-size:14px; opacity:.8;}
+  .home-link{
+    align-self:flex-start; display:inline-flex; align-items:center; min-height:44px; padding:0 18px;
+    border-radius:999px; background:#fff; color:var(--ink); text-decoration:none; font-weight:900; font-size:15px;
+    border:3px solid #d9c8ff; box-shadow:0 4px 0 #d9c8ff; transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .home-link:active{transform:translateY(3px); box-shadow:0 1px 0 #d9c8ff;}
+  .home-link:focus-visible{outline:3px solid var(--purple); outline-offset:3px;}
 
   .card{
     background:var(--card); border-radius:28px; padding:20px 18px;
@@ -156,6 +163,7 @@
 <div class="float" aria-hidden="true">⭐</div>
 
 <div class="wrap">
+  <a class="home-link" id="homeLink" href="index.html">← 回首頁</a>
   <h1>🌈 彩虹猜拳</h1>
   <p class="sub">2～3 人連線對戰・房號 4 位數</p>
 
@@ -350,9 +358,19 @@
     const ref = db.ref('rooms/' + code);
     let reason = '';
     try {
-      await ref.once('value'); // 先取得最新資料，避免交易以空資料誤判
+      // 先讀一次最新資料。注意：讀完後 Firebase 不會保留快取，
+      // 交易第一次執行時 cur 會是 null，若直接中止就會誤判成「找不到房間」。
+      const first = (await ref.once('value')).val();
+      if (!first || !first.players || Object.keys(first.players).length === 0) {
+        toast('找不到這個房間');
+        setBusy(false);
+        return;
+      }
       const res = await ref.transaction((cur) => {
         reason = '';
+        // cur 為 null 代表本機沒有快取：改用剛讀到的資料試跑，
+        // 若與伺服器實際資料不同，Firebase 會自動用最新資料重跑一次。
+        if (cur === null) cur = JSON.parse(JSON.stringify(first));
         if (!cur || !cur.players) { reason = 'notfound'; return; }
         const ids = Object.keys(cur.players);
         if (ids.length >= MAX_PLAYERS) { reason = 'full'; return; }
@@ -574,6 +592,13 @@
   joinBtn.addEventListener('click', joinRoom);
   startBtn.addEventListener('click', startRound);
   leaveBtn.addEventListener('click', leaveRoom);
+  $('homeLink').addEventListener('click', async (e) => {
+    if (!roomRef) return;            // 不在房間內：直接回首頁
+    e.preventDefault();              // 在房間內：先離開房間，讓其他玩家立刻看到，再回首頁
+    const href = $('homeLink').href;
+    try { await Promise.race([leaveRoom(), new Promise((r) => setTimeout(r, 1500))]); } catch (err) { /* 忽略 */ }
+    location.href = href;
+  });
   picksEl.addEventListener('click', (e) => {
     const b = e.target.closest('.pick');
     if (b) choose(b.dataset.ch);
