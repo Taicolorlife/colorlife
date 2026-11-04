@@ -1,0 +1,222 @@
+name: Update Google Alerts news
+
+on:
+  schedule:
+    # UTC 00:00 = 台灣時間每天早上 08:00。
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: update-news
+  cancel-in-progress: false
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET_BRANCH: ${{ github.event.repository.default_branch }}
+      RSS_URL: https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855
+    steps:
+      - name: Checkout the default branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+
+      - name: Fetch Atom or RSS and write news.json
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, time, tempfile
+          import urllib.request, urllib.parse
+          import xml.etree.ElementTree as ET
+          from datetime import datetime, timezone
+          from email.utils import parsedate_to_datetime
+          from html import unescape
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class PlainText(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.parts = []
+                  self.hidden = 0
+              def handle_starttag(self, tag, attrs):
+                  if tag in ('script', 'style'):
+                      self.hidden += 1
+                  elif tag in ('br', 'p', 'div', 'li'):
+                      self.parts.append(' ')
+              def handle_endtag(self, tag):
+                  if tag in ('script', 'style') and self.hidden:
+                      self.hidden -= 1
+                  elif tag in ('p', 'div', 'li'):
+                      self.parts.append(' ')
+              def handle_data(self, value):
+                  if not self.hidden:
+                      self.parts.append(value)
+
+          def plain(value, limit=300):
+              parser = PlainText()
+              parser.feed(value or '')
+              return ' '.join(''.join(parser.parts).split())[:limit]
+
+          def tag_name(element):
+              return element.tag.rsplit('}', 1)[-1]
+
+          def child(element, name):
+              return next((e for e in element if tag_name(e) == name), None)
+
+          def content(element, name):
+              node = child(element, name)
+              return ''.join(node.itertext()).strip() if node is not None else ''
+
+          def article_url(value):
+              value = unescape(value or '').strip()
+              if any(ord(c) < 32 for c in value):
+                  return ''
+              try:
+                  parsed = urllib.parse.urlsplit(value)
+                  if parsed.hostname in ('www.google.com', 'www.google.com.tw', 'google.com', 'google.com.tw') and parsed.path == '/url':
+                      query = urllib.parse.parse_qs(parsed.query)
+                      value = (query.get('url') or query.get('q') or [value])[0]
+                      parsed = urllib.parse.urlsplit(value)
+                  if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password:
+                      return ''
+                  return urllib.parse.urlunsplit(parsed._replace(fragment=''))
+              except ValueError:
+                  return ''
+
+          def date_string(value):
+              if not value:
+                  return ''
+              try:
+                  date = datetime.fromisoformat(value.replace('Z', '+00:00'))
+              except ValueError:
+                  try:
+                      date = parsedate_to_datetime(value)
+                  except (ValueError, TypeError, OverflowError):
+                      return ''
+              if date.tzinfo is None:
+                  date = date.replace(tzinfo=timezone.utc)
+              return date.astimezone(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+
+          def parse_feed(data):
+              tree = ET.fromstring(data)
+              kind = tag_name(tree)
+              if kind == 'feed':
+                  entries = [e for e in tree if tag_name(e) == 'entry']
+              elif kind == 'rss':
+                  channel = child(tree, 'channel')
+                  if channel is None:
+                      raise ValueError('RSS is missing its channel; previous news.json is retained.')
+                  entries = [e for e in channel if tag_name(e) == 'item']
+              else:
+                  raise ValueError('Expected an Atom/RSS feed; previous news.json is retained.')
+              rows = []
+              for entry in entries:
+                  if kind == 'feed':
+                      links = [e for e in entry if tag_name(e) == 'link' and e.get('rel', 'alternate') == 'alternate']
+                      raw_url = next((e.get('href', '') for e in links if e.get('type', 'text/html') == 'text/html'), '')
+                      published = content(entry, 'published') or content(entry, 'updated')
+                      summary = content(entry, 'summary') or content(entry, 'content')
+                  else:
+                      raw_url = content(entry, 'link')
+                      published = content(entry, 'pubDate')
+                      summary = content(entry, 'description')
+                  url = article_url(raw_url)
+                  title = plain(content(entry, 'title'), 200)
+                  if not title or not url:
+                      continue
+                  source = plain(content(entry, 'source'), 100) or urllib.parse.urlsplit(url).hostname.removeprefix('www.')
+                  rows.append({'title': title, 'url': url, 'source': source,
+                               'published_at': date_string(published), 'summary': plain(summary)})
+              if entries and not rows:
+                  raise ValueError('The feed has entries but no usable article links; previous news.json is retained.')
+              rows.sort(key=lambda item: item['published_at'], reverse=True)
+              result, seen = [], set()
+              for row in rows:
+                  if row['url'] not in seen:
+                      seen.add(row['url'])
+                      result.append(row)
+              return result[:10]
+
+          def main():
+              url = os.environ['RSS_URL']
+              payload = None
+              for attempt in range(3):
+                  try:
+                      request = urllib.request.Request(url, headers={
+                          'User-Agent': 'Mozilla/5.0 (compatible; PersonalNews/1.0)',
+                          'Accept': 'application/atom+xml, application/rss+xml, application/xml, text/xml'})
+                      with urllib.request.urlopen(request, timeout=30) as response:
+                          data = response.read(5_000_001)
+                      if len(data) > 5_000_000:
+                          raise ValueError('Feed exceeds the 5 MB limit.')
+                      payload = {'updated_at': datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z'),
+                                 'items': parse_feed(data)}
+                      break
+                  except Exception:
+                      if attempt == 2:
+                          raise
+                      time.sleep(2 ** (attempt + 1))
+              target = Path('news.json')
+              temporary = None
+              try:
+                  with tempfile.NamedTemporaryFile('w', encoding='utf-8', dir=target.parent, delete=False) as output:
+                      temporary = Path(output.name)
+                      json.dump(payload, output, ensure_ascii=False, indent=2)
+                      output.write('\n')
+                  temporary.replace(target)
+              finally:
+                  if temporary is not None:
+                      temporary.unlink(missing_ok=True)
+              print(f"Updated news.json with {len(payload['items'])} news item(s).")
+
+          if __name__ == '__main__':
+              main()
+          PY
+
+      - name: Commit and push news.json
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- news.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "Update Google Alerts news"
+          git pull --rebase origin "$TARGET_BRANCH"
+          git push origin "HEAD:$TARGET_BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # GITHUB_TOKEN 的 commit 不會自行觸發 Pages 重建，因此明確提出重建要求。
+      # 此預設適用於 Pages 從預設分支根目錄 (/) 發布的網站。
+      - name: Rebuild branch-based GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          site=$(gh api "repos/$GITHUB_REPOSITORY/pages")
+          build_type=$(jq -r '.build_type' <<< "$site")
+          if [ "$build_type" = "workflow" ]; then
+            echo "::warning::news.json 已更新。你的 Pages 使用自訂 Actions 部署；請讓該部署 workflow 透過 workflow_run 監聽 Update Google Alerts news 完成後重新部署。"
+          else
+            source_branch=$(jq -r '.source.branch' <<< "$site")
+            source_path=$(jq -r '.source.path' <<< "$site")
+            if [ "$source_branch" != "$TARGET_BRANCH" ] || [ "$source_path" != "/" ]; then
+              echo "::error::news.json 已寫入預設分支根目錄；請確認 index.html 與 news.json 位於 Pages 的同一個發布目錄。"
+              exit 1
+            fi
+            gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" > /dev/null
+          fi
