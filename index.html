@@ -1744,6 +1744,30 @@
       :root { --about-content-inset:18px; }
     }
 </style>
+
+  <!-- Latest news: styles are scoped to the new section. -->
+  <style id="latest-news-styles">
+    #news .news-header { margin-bottom:28px; }
+    #news .news-updated, #news .news-status { color:var(--muted); font-size:13px; line-height:1.7; }
+    #news .news-updated:empty { display:none; }
+    #news .news-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin:0; padding:0; list-style:none; }
+    #news .news-item {
+      min-width:0; padding:24px; border:1px solid var(--line); border-radius:var(--radius-md);
+      background:radial-gradient(ellipse at 0 0,rgba(191,221,211,.25),transparent 72%),
+        radial-gradient(ellipse at 100% 100%,rgba(245,208,190,.22),transparent 76%),rgba(255,255,255,.80);
+    }
+    #news .news-item h3 { margin:0; font:600 16px/1.7 var(--brand-system-type,inherit); letter-spacing:.025em; color:var(--mint); }
+    #news .news-item a { color:inherit; text-decoration:none; overflow-wrap:anywhere; }
+    #news .news-item a:hover { text-decoration:underline; text-underline-offset:4px; }
+    #news .news-item a:focus-visible, #news .news-retry:focus-visible { outline:2px solid var(--mint); outline-offset:4px; }
+    #news .news-meta { display:flex; flex-wrap:wrap; gap:8px 16px; margin:12px 0 0; color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
+    #news .news-summary { margin:12px 0 0; color:var(--ink); font-size:13px; line-height:1.8; overflow-wrap:anywhere; }
+    #news .news-retry { padding:8px 14px; min-height:44px; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.7); color:var(--mint); font:inherit; font-size:13px; cursor:pointer; }
+    #news [hidden] { display:none !important; }
+    @media (max-width:800px) { #news .news-list { grid-template-columns:minmax(0,1fr); } }
+    @media (max-width:620px) { #news .news-item { padding:20px; } #news .news-item h3 { font-size:14px; } }
+  </style>
+
 </head>
 <body>
   <a class="skip-link" href="#main-content" data-i18n="skip">跳至主要內容</a>
@@ -1762,7 +1786,7 @@
       <div class="header-actions">
       <nav class="desktop-nav" aria-label="主要導覽" data-i18n-aria-label="navLabel">
         <a class="nav-link" href="#home" aria-current="page" data-i18n="navHome">Home</a>
-        <button class="soon-link" type="button" data-soon="News" aria-label="News，即將推出"><span data-i18n="navNews">News</span> <span class="coming-soon" data-i18n="soon">即將推出</span></button>
+        <a class="nav-link" href="#news" data-i18n="navNews">News</a>
         <button class="soon-link" type="button" data-soon="Tools" aria-label="Tools，即將推出"><span data-i18n="navTools">Tools</span> <span class="coming-soon" data-i18n="soon">即將推出</span></button>
         <a class="nav-link" href="#games" data-i18n="navGames">Games</a>
       </nav>
@@ -1790,7 +1814,7 @@
 
     <nav class="mobile-nav" id="mobile-nav" aria-label="手機版主要導覽" data-i18n-aria-label="mobileNavLabel">
       <a class="nav-link" href="#home" data-i18n="navHome">Home</a>
-      <button class="soon-link" type="button" data-soon="News"><span data-i18n="navNews">News</span> <span class="coming-soon" data-i18n="soon">即將推出</span></button>
+      <a class="nav-link" href="#news" data-i18n="navNews">News</a>
       <button class="soon-link" type="button" data-soon="Tools"><span data-i18n="navTools">Tools</span> <span class="coming-soon" data-i18n="soon">即將推出</span></button>
       <a class="nav-link" href="#games" data-i18n="navGames">Games</a>
     </nav>
@@ -1842,6 +1866,21 @@
             <p class="biography" data-i18n="biography">廖佳怡現就讀大同大學設計科學系博士班，預計於2027年7月畢業。具針織服裝設計、色彩教學與社區藝術實踐經驗，曾任大仁科技大學及教育部深耕計畫課程講師，亦投入長者與社區編織教學。研究與創作聚焦色彩、光影與人的心理感受，以及色彩在服裝中的應用與設計。曾獲2022年國立臺灣美術館第38屆版印年畫首獎及2020年屏東美展第二類優選。</p>
           </div>
         </article>
+      </div>
+    </section>
+
+    <!-- Latest news is populated from news.json, never directly from the RSS feed. -->
+    <section class="section" id="news" aria-labelledby="news-title">
+      <div class="container">
+        <header class="news-header">
+          <p class="section-kicker" data-news-text="kicker">NEWS</p>
+          <h2 id="news-title" data-news-text="title">最新消息</h2>
+          <p class="news-updated" id="news-updated"></p>
+        </header>
+        <p class="news-status" id="news-status" role="status" aria-live="polite">正在讀取最新消息…</p>
+        <button class="news-retry" id="news-retry" type="button" hidden data-news-text="retry">重新讀取</button>
+        <ol class="news-list" id="news-list"></ol>
+        <noscript><p>請啟用 JavaScript 以顯示最新消息。</p></noscript>
       </div>
     </section>
 
@@ -2439,5 +2478,86 @@
       schedule();
     })();
   </script>
+
+  <script id="latest-news-script">
+    (() => {
+      const words = {
+        'zh-Hant': { kicker:'NEWS', title:'最新消息', loading:'正在讀取最新消息…', empty:'目前 Google 快訊尚無新聞，之後會自動更新。', error:'暫時無法讀取最新消息。若這是首次上線，請先執行 Update Google Alerts news 工作流程。', retry:'重新讀取', updated:'資料更新：', source:'新聞來源' },
+        en: { kicker:'NEWS', title:'Latest news', loading:'Loading the latest news…', empty:'No news is available in Google Alerts yet. This section updates automatically.', error:'News is temporarily unavailable. On first setup, run the Update Google Alerts news workflow.', retry:'Try again', updated:'Updated: ', source:'News source' },
+        fr: { kicker:'ACTUALITÉS', title:'Dernières actualités', loading:'Chargement des actualités…', empty:'Aucune actualité dans Google Alertes pour le moment. Cette rubrique sera mise à jour automatiquement.', error:'Actualités indisponibles. Lors de la première installation, lancez le workflow Update Google Alerts news.', retry:'Réessayer', updated:'Mise à jour : ', source:'Source' },
+        it: { kicker:'NOTIZIE', title:'Ultime notizie', loading:'Caricamento delle notizie…', empty:'Nessuna notizia disponibile su Google Alert per il momento. Questa sezione si aggiorna automaticamente.', error:'Notizie non disponibili. Al primo utilizzo, esegui il workflow Update Google Alerts news.', retry:'Riprova', updated:'Aggiornato: ', source:'Fonte' },
+        de: { kicker:'NEUIGKEITEN', title:'Aktuelle Nachrichten', loading:'Nachrichten werden geladen…', empty:'Derzeit sind keine Google-Alerts-Nachrichten verfügbar. Dieser Bereich wird automatisch aktualisiert.', error:'Nachrichten sind derzeit nicht verfügbar. Führe bei der ersten Einrichtung den Workflow Update Google Alerts news aus.', retry:'Erneut laden', updated:'Aktualisiert: ', source:'Quelle' },
+        ja: { kicker:'ニュース', title:'最新ニュース', loading:'ニュースを読み込み中…', empty:'Google アラートのニュースはまだありません。自動で更新されます。', error:'ニュースを読み込めません。初回は Update Google Alerts news ワークフローを実行してください。', retry:'再読み込み', updated:'更新：', source:'ニュース配信元' },
+        ko: { kicker:'소식', title:'최신 소식', loading:'최신 소식을 불러오는 중…', empty:'아직 Google 알리미에 뉴스가 없습니다. 자동으로 업데이트됩니다.', error:'소식을 불러올 수 없습니다. 처음 설정할 때 Update Google Alerts news 워크플로를 실행해 주세요.', retry:'다시 불러오기', updated:'업데이트: ', source:'뉴스 출처' }
+      };
+      const list = document.getElementById('news-list');
+      const status = document.getElementById('news-status');
+      const updated = document.getElementById('news-updated');
+      const retry = document.getElementById('news-retry');
+      let state = 'loading', items = [], updatedAt = '';
+      const language = () => Object.hasOwn(words, document.documentElement.lang) ? document.documentElement.lang : 'zh-Hant';
+      function dateText(value, withTime = false) {
+        const date = new Date(value);
+        if (!value || !Number.isFinite(date.getTime())) return '';
+        const options = { timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit' };
+        if (withTime) { options.hour = '2-digit'; options.minute = '2-digit'; }
+        return new Intl.DateTimeFormat(language(), options).format(date);
+      }
+      function safeUrl(value) {
+        if (typeof value !== 'string') return '';
+        try {
+          const url = new URL(value);
+          return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : '';
+        } catch (_) { return ''; }
+      }
+      function render() {
+        const text = words[language()];
+        document.querySelectorAll('#news [data-news-text]').forEach(node => { node.textContent = text[node.dataset.newsText]; });
+        status.textContent = state === 'ready' ? '' : text[state];
+        status.hidden = state === 'ready';
+        retry.hidden = state !== 'error';
+        const stamp = dateText(updatedAt, true);
+        updated.textContent = stamp ? text.updated + stamp : '';
+        const fragment = document.createDocumentFragment();
+        if (state === 'ready') items.forEach(item => {
+          const row = document.createElement('li'); row.className = 'news-item';
+          const title = document.createElement('h3');
+          const link = document.createElement('a');
+          link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          link.textContent = item.title; title.appendChild(link); row.appendChild(title);
+          const meta = document.createElement('p'); meta.className = 'news-meta';
+          const source = document.createElement('span'); source.textContent = item.source || text.source;
+          meta.appendChild(source);
+          const date = dateText(item.published_at);
+          if (date) { const time = document.createElement('time'); time.dateTime = item.published_at; time.textContent = date; meta.appendChild(time); }
+          row.appendChild(meta);
+          if (item.summary) { const summary = document.createElement('p'); summary.className = 'news-summary'; summary.textContent = item.summary; row.appendChild(summary); }
+          fragment.appendChild(row);
+        });
+        list.replaceChildren(fragment);
+      }
+      async function loadNews() {
+        state = 'loading'; render();
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 15000);
+        try {
+          const response = await fetch(new URL('news.json', document.baseURI), { cache:'no-store', signal:controller.signal });
+          if (!response.ok) throw new Error('News request failed');
+          const data = await response.json();
+          if (!data || !Array.isArray(data.items)) throw new Error('Invalid news data');
+          items = data.items.filter(item => item && typeof item.title === 'string' && item.title.trim() && safeUrl(item.url))
+            .slice(0, 10).map(item => ({ title:item.title.slice(0, 200), url:safeUrl(item.url), source:typeof item.source === 'string' ? item.source.slice(0, 100) : '', published_at:typeof item.published_at === 'string' ? item.published_at : '', summary:typeof item.summary === 'string' ? item.summary.slice(0, 300) : '' }));
+          if (data.items.length && !items.length) throw new Error('No usable news data');
+          updatedAt = typeof data.updated_at === 'string' ? data.updated_at : '';
+          state = items.length ? 'ready' : 'empty';
+        } catch (_) { state = 'error'; updatedAt = ''; }
+        finally { window.clearTimeout(timeout); render(); }
+      }
+      retry.addEventListener('click', loadNews);
+      new MutationObserver(render).observe(document.documentElement, { attributes:true, attributeFilter:['lang'] });
+      loadNews();
+    })();
+  </script>
+
 </body>
 </html>
