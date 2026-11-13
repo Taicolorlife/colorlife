@@ -1,104 +1,104 @@
 {
-  "updated_at": "2026-11-12T05:37:16Z",
+  "updated_at": "2026-11-13T04:54:18Z",
   "items": [
     {
-      "title": "宏碁於臺灣教育科技展發表「未來教室新方程式AI+」平台 - 永豐金證券",
-      "url": "https://www.sinotrade.com.tw/richclub/news/6af547dc71992d5745b55ca8",
-      "source": "sinotrade.com.tw",
-      "published_at": "2026-11-12T05:21:06Z",
-      "summary": "... 學習環境。 因應生成式AI快速普及，宏碁今年正式導入AI Agent與AI助教應用，整合於智慧大屏管理系統之中，讓AI成為老師日常教學的重要幫手。透過AI助教 ...",
+      "title": "NIST發布對抗式機器學習攻擊分類草案，示警MCP工具供應鏈風險 - iThome",
+      "url": "https://www.ithome.com.tw/news/180433",
+      "source": "ithome.com.tw",
+      "published_at": "2026-11-13T00:48:54Z",
+      "summary": "AI代理可能遭遇劫持、記憶中毒及惡意工具等攻擊。NIST指出，攻擊者可能在MCP工具安裝後暗中修改工具說明，誘使AI代理在未經使用者再次同意的情況下執行惡意 ...",
       "feed_urls": [
         "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
       ]
     },
     {
-      "title": "波士頓動力Atlas人形機器人改裝輪式雙腳，驗證AI全身控制與馬達極限性能 - 科技產業資訊室",
-      "url": "https://iknow.stpi.narl.org.tw/article/3/25707",
-      "source": "iknow.stpi.narl.org.tw",
-      "published_at": "2026-11-12T05:11:23Z",
-      "summary": "波士頓動力表示，輪式Atlas是一項研究測試平台，主要目的在於驗證透過強化學習（Reinforcement Learning）訓練的全身控制系統，能否在實體致動器接近性能 ...",
+      "title": "RSAC預測2027年資安趨勢：AI代理增加漏洞處理壓力，企業須強化GRC與事件應變 - iThome",
+      "url": "https://www.ithome.com.tw/news/180448",
+      "source": "ithome.com.tw",
+      "published_at": "2026-11-13T00:48:53Z",
+      "summary": "資安產業會議RSA Conference（RSAC）整理資安社群關注的十大議題，預測2027年治理、風險與法遵（GRC）將維持第一名，AI與機器學習安全及AI應用於資安則分居 ...",
       "feed_urls": [
         "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
       ]
     },
     {
-      "title": "浸大統籌、賽馬會多元出路計劃「鼓掌— 創新教育歷程」 為其高中階段課程注入新元素推動職專 ...",
-      "url": "https://businessfocus.io/article/365589/%E6%B5%B8%E5%A4%A7%E7%B5%B1%E7%B1%8C-%E8%B3%BD%E9%A6%AC%E6%9C%83%E5%A4%9A%E5%85%83%E5%87%BA%E8%B7%AF%E8%A8%88%E5%8A%83-%E9%BC%93%E6%8E%8C-%E2%80%94-%E5%89%B5%E6%96%B0%E6%95%99%E8%82%B2%E6%AD%B7%E7%A8%8B--%E7%82%BA%E5%85%B6%E9%AB%98%E4%B8%AD%E9%9A%8E%E6%AE%B5%E8%AA%B2%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%96%B0%E5%85%83%E7%B4%A0--%E6%8E%A8%E5%8B%95%E8%81%B7%E5%B0%88%E6%95%99%E8%82%B2%E8%9E%8D%E5%85%A5%E4%B8%BB%E6%B5%81%E8%AA%B2%E7%A8%8B-",
-      "source": "businessfocus.io",
-      "published_at": "2026-11-12T04:21:25Z",
-      "summary": "透過將科技，包括AI 驅動的平台，融入中文學習，我們鼓勵學生在提升核心語言技能的同時，培養創意思維、批判性分析及關鍵的軟技能。」 CLAP-TECH ...",
+      "title": "英國宣布投資本土AI晶片企業Fractile，促進AI硬體技術發展",
+      "url": "https://www.trademag.org.tw/page/newsid1/?id=7932094&iz=2",
+      "source": "trademag.org.tw",
+      "published_at": "2026-11-13T00:12:01Z",
+      "summary": "... 學習基礎研究，提升AI運算速度、能源效率並降低成本，英國政府表示，本次投資旨在支持英國成為AI關鍵技術之全球領導者，強化關鍵技術自主能力，降低對海外 ...",
       "feed_urls": [
         "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
       ]
     },
     {
-      "title": "崑山科大聘前Google董事總經理馬大康任榮譽講座教授聚焦AI人才培育 - PCHOME NEWS",
-      "url": "https://news.m.pchome.com.tw/living/1111news/20261112/index-79444677286525358009.html",
-      "source": "news.m.pchome.com.tw",
-      "published_at": "2026-11-12T04:01:40Z",
-      "summary": "他強調，未來產業競爭核心不在於單一AI 模型能力，而取決於資料、運力、場域與跨域人才的整合；面對AI 變革，持續學習、跨域整合與解決實際問題的能力將是不可或 ...",
+      "title": "New Color Wave Walls festival brings global muralists to Polk County | FOX 13 Tampa Bay",
+      "url": "https://www.fox13news.com/news/new-color-wave-walls-festival-brings-global-muralists-polk-county",
+      "source": "fox13news.com",
+      "published_at": "2026-11-13T00:09:02Z",
+      "summary": "Blank walls across Downtown Lakeland are turning into colorful masterpieces as the new Color Wave Walls mural festival brings nearly a dozen ...",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     },
     {
-      "title": "AI時代企業如何突破成長天花板？解密破壞性創新的關鍵邏輯與轉型解方！ - 104職場力",
-      "url": "https://blog.104.com.tw/?post_type=post&p=261569",
-      "source": "blog.104.com.tw",
-      "published_at": "2026-11-12T03:46:18Z",
-      "summary": "他於2026國際大師論壇對談玉山金控董事長黃男州、群聯電子創辦人暨執行長潘健成，剖析企業如何重塑今天、布局明天。 文／天下學習編輯部由Cheers授權轉載. 本文 ...",
+      "title": "James Hardie Names Midnight Black as 2027 Color of the Year | Hardware Retailing",
+      "url": "https://hardwareretailing.com/james-hardie-names-midnight-black-as-2027-color-of-the-year/",
+      "source": "hardwareretailing.com",
+      "published_at": "2026-11-12T22:55:36Z",
+      "summary": "... with James Hardie's proprietary ColorPlus® Technology, Midnight Black features a finish engineered for color consistency, adhesion and durability.",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     },
     {
-      "title": "AI用得很順卻不敢說Z世代掀「影子AI」風潮近3成瞞主管 - PCHOME NEWS",
-      "url": "https://news.m.pchome.com.tw/science/technice/20261112/index-79445193149010338005.html",
-      "source": "news.m.pchome.com.tw",
-      "published_at": "2026-11-12T03:28:32Z",
-      "summary": "倫敦帝國學院（Imperial College London）新成立的部門「帝國終身學習中心」（Imperial Lifelong Learning）發現，Z世代與AI之間的關係相當複雜，48%的Z世代經常 ...",
+      "title": "Leaves Change Color Quickly Signaling Upcoming Winter - YouTube",
+      "url": "https://www.youtube.com/shorts/NChMZFNXrzI",
+      "source": "youtube.com",
+      "published_at": "2026-11-12T22:44:59Z",
+      "summary": "During an afternoon walk, rapid leaf color change and falling leaves suggest winter's approach. This natural sign highlights seasonal transitions ...",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     },
     {
-      "title": "【線上講座】與AI 共行：從Chatbot 到AI Agent 的研究新途徑｜第一場Chatbot 聊天機器人篇",
-      "url": "https://www2.nchu.edu.tw/news-detail/id/62847",
-      "source": "www2.nchu.edu.tw",
-      "published_at": "2026-11-12T02:52:23Z",
-      "summary": "... AI 工具，學習有效提問、文件整理及研究撰寫技巧。 AI 不只能聊天，更能成為學習與研究的得力助手！無論是想提升工作效率，還是希望善用AI 輔助研究與論文 ...",
+      "title": "Oregon Ducks Fans Color to Wear vs. Michigan in Autzen Stadium - Sports Illustrated",
+      "url": "https://www.si.com/college/oregon/football/oregon-ducks-fans-color-wear-michigan-wolverines-autzen-stadium",
+      "source": "si.com",
+      "published_at": "2026-11-12T22:15:10Z",
+      "summary": "Fans Color To Wear. As for Ducks fans, each game, fans are encouraged to wear a certain color for the 2026 football schedule. What color do Oregon ...",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     },
     {
-      "title": "拍寵物臉就能判斷個性傾向日本アニコムAI系統取得美國專利 - 報新聞",
-      "url": "https://www.contentplatform.info/articles/573055/%E6%8B%8D%E5%AF%B5%E7%89%A9%E8%87%89%E5%B0%B1%E8%83%BD%E5%88%A4%E6%96%B7%E5%80%8B%E6%80%A7%E5%82%BE%E5%90%91%E3%80%80%E6%97%A5%E6%9C%AC%E3%82%A2%E3%83%8B%E3%82%B3%E3%83%A0ai%E7%B3%BB%E7%B5%B1%E5%8F%96/",
-      "source": "contentplatform.info",
-      "published_at": "2026-11-12T01:51:20Z",
-      "summary": "這套系統事先讓AI學習多隻寵物的臉部照片與各自的個性資料。使用時，飼主以手機等裝置從正面拍下寵物臉部並上傳，系統以學習過的AI模型分析，判斷「親人程度 ...",
+      "title": "Dakota Johnson Debuts Striking Hair Color Change During Date Night With Machine Gun Kelly",
+      "url": "https://www.instyle.com/dakota-johnson-debuts-black-hair-color-transformation-date-mgk-12251383",
+      "source": "instyle.com",
+      "published_at": "2026-11-12T22:12:26Z",
+      "summary": "She paired the new hair color with an animal-print shearling coat, a T-shirt, and bootcut jeans. Johnson's hair transformation comes less than two ...",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     },
     {
-      "title": "韓國LG CNS辦產學論壇談物理AI，機器人數據與延遲成焦點 - BigGo 財經",
-      "url": "https://finance.biggo.com.tw/news/3aabef9c-fc34-469d-b12e-2cf0fd85ee98",
-      "source": "finance.biggo.com.tw",
-      "published_at": "2026-11-12T01:49:59Z",
-      "summary": "LG CNS分享逾1000件智慧工廠與智慧物流專案經驗，並介紹機器人學習平台「PhysicalWorks Forge」與營運監控平台「PhysicalWorks Baton」。多倫多大學教授李治根 ...",
+      "title": "4 Paint Colors And Color Combinations That Make Ceilings Feel Lower - Yahoo Shopping",
+      "url": "https://shopping.yahoo.com/home-garden/home-decor/articles/4-paint-colors-color-combinations-203600763.html",
+      "source": "shopping.yahoo.com",
+      "published_at": "2026-11-12T21:44:25Z",
+      "summary": "When we asked interior designers what paint colors make ceilings feel lower, we learned that the color itself is only one part of the equation. The ...",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     },
     {
-      "title": "人工智慧時代的日本藝術教育實況：從武藏野美術大學、東京藝術大學、寺田藝術獎與森美術館",
-      "url": "https://artouch.com/art-after-ai/content-271850.html",
-      "source": "artouch.com",
-      "published_at": "2026-11-12T01:03:07Z",
-      "summary": "因此，藝術大學—作為政策涉入、想像力與創作力的教學場域，成為AI介入藝術教育的觀察重點，學習、教學、創作、表達也衍伸出本質叩問與有機發展。 當AI進入藝術 ...",
+      "title": "Anthurium Meaning: The Heart-Shaped Flower of Hospitality and Love",
+      "url": "https://thursd.com/articles/anthurium-meaning",
+      "source": "thursd.com",
+      "published_at": "2026-11-12T21:39:13Z",
+      "summary": "What does an Anthurium mean? Hospitality from Hawaii, love from that red heart, and a message for every color, from pink and white to green and ...",
       "feed_urls": [
-        "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376"
+        "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163"
       ]
     }
   ],
@@ -111,96 +111,159 @@
     {
       "url": "https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855",
       "status": "ok",
-      "count": 1
+      "count": 0
     },
     {
       "url": "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163",
       "status": "ok",
-      "count": 0
+      "count": 10
     }
   ],
   "feed_cache": {
     "https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376": [
       {
-        "title": "宏碁於臺灣教育科技展發表「未來教室新方程式AI+」平台 - 永豐金證券",
-        "url": "https://www.sinotrade.com.tw/richclub/news/6af547dc71992d5745b55ca8",
-        "source": "sinotrade.com.tw",
-        "published_at": "2026-11-12T05:21:06Z",
-        "summary": "... 學習環境。 因應生成式AI快速普及，宏碁今年正式導入AI Agent與AI助教應用，整合於智慧大屏管理系統之中，讓AI成為老師日常教學的重要幫手。透過AI助教 ..."
+        "title": "NIST發布對抗式機器學習攻擊分類草案，示警MCP工具供應鏈風險 - iThome",
+        "url": "https://www.ithome.com.tw/news/180433",
+        "source": "ithome.com.tw",
+        "published_at": "2026-11-13T00:48:54Z",
+        "summary": "AI代理可能遭遇劫持、記憶中毒及惡意工具等攻擊。NIST指出，攻擊者可能在MCP工具安裝後暗中修改工具說明，誘使AI代理在未經使用者再次同意的情況下執行惡意 ..."
       },
       {
-        "title": "波士頓動力Atlas人形機器人改裝輪式雙腳，驗證AI全身控制與馬達極限性能 - 科技產業資訊室",
-        "url": "https://iknow.stpi.narl.org.tw/article/3/25707",
-        "source": "iknow.stpi.narl.org.tw",
-        "published_at": "2026-11-12T05:11:23Z",
-        "summary": "波士頓動力表示，輪式Atlas是一項研究測試平台，主要目的在於驗證透過強化學習（Reinforcement Learning）訓練的全身控制系統，能否在實體致動器接近性能 ..."
+        "title": "RSAC預測2027年資安趨勢：AI代理增加漏洞處理壓力，企業須強化GRC與事件應變 - iThome",
+        "url": "https://www.ithome.com.tw/news/180448",
+        "source": "ithome.com.tw",
+        "published_at": "2026-11-13T00:48:53Z",
+        "summary": "資安產業會議RSA Conference（RSAC）整理資安社群關注的十大議題，預測2027年治理、風險與法遵（GRC）將維持第一名，AI與機器學習安全及AI應用於資安則分居 ..."
       },
       {
-        "title": "浸大統籌、賽馬會多元出路計劃「鼓掌— 創新教育歷程」 為其高中階段課程注入新元素推動職專 ...",
-        "url": "https://businessfocus.io/article/365589/%E6%B5%B8%E5%A4%A7%E7%B5%B1%E7%B1%8C-%E8%B3%BD%E9%A6%AC%E6%9C%83%E5%A4%9A%E5%85%83%E5%87%BA%E8%B7%AF%E8%A8%88%E5%8A%83-%E9%BC%93%E6%8E%8C-%E2%80%94-%E5%89%B5%E6%96%B0%E6%95%99%E8%82%B2%E6%AD%B7%E7%A8%8B--%E7%82%BA%E5%85%B6%E9%AB%98%E4%B8%AD%E9%9A%8E%E6%AE%B5%E8%AA%B2%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%96%B0%E5%85%83%E7%B4%A0--%E6%8E%A8%E5%8B%95%E8%81%B7%E5%B0%88%E6%95%99%E8%82%B2%E8%9E%8D%E5%85%A5%E4%B8%BB%E6%B5%81%E8%AA%B2%E7%A8%8B-",
-        "source": "businessfocus.io",
-        "published_at": "2026-11-12T04:21:25Z",
-        "summary": "透過將科技，包括AI 驅動的平台，融入中文學習，我們鼓勵學生在提升核心語言技能的同時，培養創意思維、批判性分析及關鍵的軟技能。」 CLAP-TECH ..."
+        "title": "英國宣布投資本土AI晶片企業Fractile，促進AI硬體技術發展",
+        "url": "https://www.trademag.org.tw/page/newsid1/?id=7932094&iz=2",
+        "source": "trademag.org.tw",
+        "published_at": "2026-11-13T00:12:01Z",
+        "summary": "... 學習基礎研究，提升AI運算速度、能源效率並降低成本，英國政府表示，本次投資旨在支持英國成為AI關鍵技術之全球領導者，強化關鍵技術自主能力，降低對海外 ..."
       },
       {
-        "title": "崑山科大聘前Google董事總經理馬大康任榮譽講座教授聚焦AI人才培育 - PCHOME NEWS",
-        "url": "https://news.m.pchome.com.tw/living/1111news/20261112/index-79444677286525358009.html",
-        "source": "news.m.pchome.com.tw",
-        "published_at": "2026-11-12T04:01:40Z",
-        "summary": "他強調，未來產業競爭核心不在於單一AI 模型能力，而取決於資料、運力、場域與跨域人才的整合；面對AI 變革，持續學習、跨域整合與解決實際問題的能力將是不可或 ..."
+        "title": "臺灣教育科技展登場情緒燈具、越語闖關遊戲新北師生善用AI展創意 - 國語日報",
+        "url": "https://www.mdnkids.com/content.asp?Link_String_=24BD00000FDXHCY",
+        "source": "mdnkids.com",
+        "published_at": "2026-11-12T21:02:53Z",
+        "summary": "... AI助教解決方案已規畫導入苗栗縣一百五十七所國中小學，未來有望擴及新北市、臺南市。 新北市柑園國中展出結合社會情緒學習 ... AI新時代」與「AI賦能．跨 ..."
       },
       {
-        "title": "AI時代企業如何突破成長天花板？解密破壞性創新的關鍵邏輯與轉型解方！ - 104職場力",
-        "url": "https://blog.104.com.tw/?post_type=post&p=261569",
-        "source": "blog.104.com.tw",
-        "published_at": "2026-11-12T03:46:18Z",
-        "summary": "他於2026國際大師論壇對談玉山金控董事長黃男州、群聯電子創辦人暨執行長潘健成，剖析企業如何重塑今天、布局明天。 文／天下學習編輯部由Cheers授權轉載. 本文 ..."
+        "title": "【師說新語】AI時代校內評估應關注學習歷程- 香港文匯報",
+        "url": "https://www.wenweipo.com/a/202611/13/AP6af61c71e4b028ec0193b0fa.html",
+        "source": "wenweipo.com",
+        "published_at": "2026-11-12T20:24:25Z",
+        "summary": "【師說新語】AI時代校內評估應關注學習歷程 ... 自從生成式人工智能（AI）進入香港中小學課堂，最直接衝擊的是評估。學生數秒可生成文章與專題報告，教師若仍以「 ..."
       },
       {
-        "title": "AI用得很順卻不敢說Z世代掀「影子AI」風潮近3成瞞主管 - PCHOME NEWS",
-        "url": "https://news.m.pchome.com.tw/science/technice/20261112/index-79445193149010338005.html",
-        "source": "news.m.pchome.com.tw",
-        "published_at": "2026-11-12T03:28:32Z",
-        "summary": "倫敦帝國學院（Imperial College London）新成立的部門「帝國終身學習中心」（Imperial Lifelong Learning）發現，Z世代與AI之間的關係相當複雜，48%的Z世代經常 ..."
+        "title": "【港大之道】培養批判思考能力深化自主學習- 教育- 香港文匯報",
+        "url": "https://www.wenweipo.com/a/202611/13/AP6af61ca8e4b028ec0193b0fd.html",
+        "source": "wenweipo.com",
+        "published_at": "2026-11-12T20:24:25Z",
+        "summary": "如早前推出的HKU AI Hub平台，專為學生、教職員、研究人員及專業行政人員而設。該平台作為中央管理的一站式平台，匯集教學、研究及行政管理所需的工具、資源 ..."
       },
       {
-        "title": "【線上講座】與AI 共行：從Chatbot 到AI Agent 的研究新途徑｜第一場Chatbot 聊天機器人篇",
-        "url": "https://www2.nchu.edu.tw/news-detail/id/62847",
-        "source": "www2.nchu.edu.tw",
-        "published_at": "2026-11-12T02:52:23Z",
-        "summary": "... AI 工具，學習有效提問、文件整理及研究撰寫技巧。 AI 不只能聊天，更能成為學習與研究的得力助手！無論是想提升工作效率，還是希望善用AI 輔助研究與論文 ..."
+        "title": "美晶片出口管制沒用！中國大學持續取得輝達高階AI晶片 - 鉅亨網",
+        "url": "https://news.cnyes.com/news/id/6659865",
+        "source": "news.cnyes.com",
+        "published_at": "2026-11-12T20:03:07Z",
+        "summary": "... AI 模型微調及強化學習訓練。 該校另一個研究單位4 月也以人民幣 37 萬5,000 元採購運算服務，要求至少使用24 顆輝達A100 晶片，供結構與流體力學模擬使用 ..."
       },
       {
-        "title": "拍寵物臉就能判斷個性傾向日本アニコムAI系統取得美國專利 - 報新聞",
-        "url": "https://www.contentplatform.info/articles/573055/%E6%8B%8D%E5%AF%B5%E7%89%A9%E8%87%89%E5%B0%B1%E8%83%BD%E5%88%A4%E6%96%B7%E5%80%8B%E6%80%A7%E5%82%BE%E5%90%91%E3%80%80%E6%97%A5%E6%9C%AC%E3%82%A2%E3%83%8B%E3%82%B3%E3%83%A0ai%E7%B3%BB%E7%B5%B1%E5%8F%96/",
-        "source": "contentplatform.info",
-        "published_at": "2026-11-12T01:51:20Z",
-        "summary": "這套系統事先讓AI學習多隻寵物的臉部照片與各自的個性資料。使用時，飼主以手機等裝置從正面拍下寵物臉部並上傳，系統以學習過的AI模型分析，判斷「親人程度 ..."
+        "title": "83歲阿嬤為何參選高雄？糖廠工人到最年長議員候選人，她想守住一片森林 - 天下雜誌",
+        "url": "https://www.cw.com.tw/article/5143695",
+        "source": "cw.com.tw",
+        "published_at": "2026-11-12T19:33:56Z",
+        "summary": "科技 學生必看的AI學習技巧ChatGPT、Claude和NotebookLM怎麼用？ 飛捷營收創新高、上半年獲利漲6成！POS 科技 ..."
       },
       {
-        "title": "韓國LG CNS辦產學論壇談物理AI，機器人數據與延遲成焦點 - BigGo 財經",
-        "url": "https://finance.biggo.com.tw/news/3aabef9c-fc34-469d-b12e-2cf0fd85ee98",
-        "source": "finance.biggo.com.tw",
-        "published_at": "2026-11-12T01:49:59Z",
-        "summary": "LG CNS分享逾1000件智慧工廠與智慧物流專案經驗，並介紹機器人學習平台「PhysicalWorks Forge」與營運監控平台「PhysicalWorks Baton」。多倫多大學教授李治根 ..."
+        "title": "全民都能秒懂AI！教育部打造終身學習樂園探索科技新知 - 中時新聞網",
+        "url": "https://www.chinatimes.com/realtimenews/20261112004525-260405",
+        "source": "chinatimes.com",
+        "published_at": "2026-11-12T17:44:54Z",
+        "summary": "台北世貿「資訊月」今（12）日揭開序幕，面對AI與數位科技的浪潮，終身學習已跨越年齡限制，教育部終身教育司致力推動全民終身學習，今年特別以「終身學習 ..."
       },
       {
-        "title": "人工智慧時代的日本藝術教育實況：從武藏野美術大學、東京藝術大學、寺田藝術獎與森美術館",
-        "url": "https://artouch.com/art-after-ai/content-271850.html",
-        "source": "artouch.com",
-        "published_at": "2026-11-12T01:03:07Z",
-        "summary": "因此，藝術大學—作為政策涉入、想像力與創作力的教學場域，成為AI介入藝術教育的觀察重點，學習、教學、創作、表達也衍伸出本質叩問與有機發展。 當AI進入藝術 ..."
+        "title": "115資訊月暨臺灣教育科技展開幕卓揆：公私協力推動AI服務、培育人才向下扎根共創AI新時代",
+        "url": "https://ocacnews.net/article/433929",
+        "source": "ocacnews.net",
+        "published_at": "2026-11-12T17:33:09Z",
+        "summary": "... AI新十大建設」之外，預計2026至2029年間亦投入117億元推動「AI人才方舟計畫」，建構中小學AI學習環境，向下扎根，並透過公私協力推動AI服務，共同打造 ..."
       }
     ],
-    "https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855": [
+    "https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855": [],
+    "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163": [
       {
-        "title": "プレスリリース：［クリエイター向け］癒やしの色？それとも優柔不断？意外と奥深い「緑」を ...",
-        "url": "https://mainichi.jp/articles/20261111/pr1/00m/020/002000c",
-        "source": "mainichi.jp",
-        "published_at": "2026-11-11T00:44:13Z",
-        "summary": "C&R社では、カラーリストや講師として活躍するShigeru Shimada氏にご登壇いただき、クリエイターが配色を“より深く・より正確に”扱うための色彩心理セミナーを ..."
+        "title": "New Color Wave Walls festival brings global muralists to Polk County | FOX 13 Tampa Bay",
+        "url": "https://www.fox13news.com/news/new-color-wave-walls-festival-brings-global-muralists-polk-county",
+        "source": "fox13news.com",
+        "published_at": "2026-11-13T00:09:02Z",
+        "summary": "Blank walls across Downtown Lakeland are turning into colorful masterpieces as the new Color Wave Walls mural festival brings nearly a dozen ..."
+      },
+      {
+        "title": "James Hardie Names Midnight Black as 2027 Color of the Year | Hardware Retailing",
+        "url": "https://hardwareretailing.com/james-hardie-names-midnight-black-as-2027-color-of-the-year/",
+        "source": "hardwareretailing.com",
+        "published_at": "2026-11-12T22:55:36Z",
+        "summary": "... with James Hardie's proprietary ColorPlus® Technology, Midnight Black features a finish engineered for color consistency, adhesion and durability."
+      },
+      {
+        "title": "Leaves Change Color Quickly Signaling Upcoming Winter - YouTube",
+        "url": "https://www.youtube.com/shorts/NChMZFNXrzI",
+        "source": "youtube.com",
+        "published_at": "2026-11-12T22:44:59Z",
+        "summary": "During an afternoon walk, rapid leaf color change and falling leaves suggest winter's approach. This natural sign highlights seasonal transitions ..."
+      },
+      {
+        "title": "Oregon Ducks Fans Color to Wear vs. Michigan in Autzen Stadium - Sports Illustrated",
+        "url": "https://www.si.com/college/oregon/football/oregon-ducks-fans-color-wear-michigan-wolverines-autzen-stadium",
+        "source": "si.com",
+        "published_at": "2026-11-12T22:15:10Z",
+        "summary": "Fans Color To Wear. As for Ducks fans, each game, fans are encouraged to wear a certain color for the 2026 football schedule. What color do Oregon ..."
+      },
+      {
+        "title": "Dakota Johnson Debuts Striking Hair Color Change During Date Night With Machine Gun Kelly",
+        "url": "https://www.instyle.com/dakota-johnson-debuts-black-hair-color-transformation-date-mgk-12251383",
+        "source": "instyle.com",
+        "published_at": "2026-11-12T22:12:26Z",
+        "summary": "She paired the new hair color with an animal-print shearling coat, a T-shirt, and bootcut jeans. Johnson's hair transformation comes less than two ..."
+      },
+      {
+        "title": "4 Paint Colors And Color Combinations That Make Ceilings Feel Lower - Yahoo Shopping",
+        "url": "https://shopping.yahoo.com/home-garden/home-decor/articles/4-paint-colors-color-combinations-203600763.html",
+        "source": "shopping.yahoo.com",
+        "published_at": "2026-11-12T21:44:25Z",
+        "summary": "When we asked interior designers what paint colors make ceilings feel lower, we learned that the color itself is only one part of the equation. The ..."
+      },
+      {
+        "title": "Anthurium Meaning: The Heart-Shaped Flower of Hospitality and Love",
+        "url": "https://thursd.com/articles/anthurium-meaning",
+        "source": "thursd.com",
+        "published_at": "2026-11-12T21:39:13Z",
+        "summary": "What does an Anthurium mean? Hospitality from Hawaii, love from that red heart, and a message for every color, from pink and white to green and ..."
+      },
+      {
+        "title": "Exhibition | Leon Polk Smith, 'Line, Color, and the Concept of Space' at Lisson Gallery, 1037 ...",
+        "url": "https://ocula.com/art-galleries/lisson-gallery/exhibitions/leon-polk-smith-line-color-and-the-concept-of/",
+        "source": "ocula.com",
+        "published_at": "2026-11-12T21:27:05Z",
+        "summary": "View images of the exhibition and selected artworks. Leon Polk Smith, 'Line, Color, and the Concept of Space' at Lisson Gallery, 1037 N. Sycamore ..."
+      },
+      {
+        "title": "What's New in Color Mode: A Faster Path to a Finished Look | No Film School",
+        "url": "https://nofilmschool.com/whats-new-in-color-mode-a-faster-path-to-a-finished-look",
+        "source": "nofilmschool.com",
+        "published_at": "2026-11-12T21:18:25Z",
+        "summary": "Meta description: Adobe Premiere Color Mode adds Auto Color, smarter reanalysis, clip grouping, and new grading tools to help editors work faster ..."
+      },
+      {
+        "title": "Emerald Symmetry from Sherwin-Williams delivers superior color, coverage and sustainability",
+        "url": "https://businessofhome.com/articles/emerald-symmetry-from-sherwin-williams-delivers-superior-color-coverage-and-sustainability",
+        "source": "businessofhome.com",
+        "published_at": "2026-11-12T21:09:15Z",
+        "summary": "When it comes to choosing paint, color is paramount—but it's not the only consideration. Today, designers and their clients are equally concerned ..."
       }
-    ],
-    "https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163": []
+    ]
   }
 }
