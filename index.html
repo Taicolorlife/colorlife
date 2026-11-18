@@ -1893,16 +1893,28 @@
       background:radial-gradient(ellipse at 0 0,rgba(191,221,211,.25),transparent 72%),
         radial-gradient(ellipse at 100% 100%,rgba(245,208,190,.22),transparent 76%),rgba(255,255,255,.80);
     }
-    #news .news-item h3 { margin:0; font:600 16px/1.7 var(--brand-system-type,inherit); letter-spacing:.025em; color:var(--mint); }
+    #news .news-item h4 { margin:0; font:600 16px/1.7 var(--brand-system-type,inherit); letter-spacing:.025em; color:var(--mint); }
     #news .news-item a { color:inherit; text-decoration:none; overflow-wrap:anywhere; }
     #news .news-item a:hover { text-decoration:underline; text-underline-offset:4px; }
     #news .news-item a:focus-visible, #news .news-retry:focus-visible { outline:2px solid var(--mint); outline-offset:4px; }
     #news .news-meta { display:flex; flex-wrap:wrap; gap:8px 16px; margin:12px 0 0; color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
     #news .news-summary { margin:12px 0 0; color:var(--ink); font-size:13px; line-height:1.8; overflow-wrap:anywhere; }
     #news .news-retry { padding:8px 14px; min-height:44px; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.7); color:var(--mint); font:inherit; font-size:13px; cursor:pointer; }
+    #news .news-groups { display:grid; gap:36px; margin:0; padding:0; list-style:none; }
+    #news .news-group { min-width:0; }
+    #news .news-group-heading { display:flex; align-items:baseline; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+    #news .news-group-heading h3 { margin:0; color:var(--mint); font-size:18px; font-weight:600; letter-spacing:.04em; }
+    #news .news-count { color:var(--muted); font-size:12px; }
+    #news .news-more { margin-top:14px; }
+    #news .news-more > summary { display:flex; align-items:center; justify-content:center; gap:10px; width:fit-content; max-width:100%; min-height:44px; margin:0 auto; padding:9px 20px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.65); color:var(--mint); font-size:13px; cursor:pointer; list-style:none; }
+    #news .news-more > summary::-webkit-details-marker { display:none; }
+    #news .news-more > summary::after { content:'⌄'; font-size:18px; line-height:1; }
+    #news .news-more[open] > summary::after { transform:rotate(180deg); }
+    #news .news-more > summary:focus-visible { outline:2px solid var(--mint); outline-offset:4px; }
+    #news .news-more > .news-list { margin-top:18px; }
     #news [hidden] { display:none !important; }
     @media (max-width:800px) { #news .news-list { grid-template-columns:minmax(0,1fr); } }
-    @media (max-width:620px) { #news .news-item { padding:20px; } #news .news-item h3 { font-size:14px; } }
+    @media (max-width:620px) { #news .news-item { padding:20px; } #news .news-item h4 { font-size:14px; } }
   </style>
 
 </head>
@@ -2043,7 +2055,7 @@
         </header>
         <p class="news-status" id="news-status" role="status" aria-live="polite">正在讀取最新消息…</p>
         <button class="news-retry" id="news-retry" type="button" hidden data-news-text="retry">重新讀取</button>
-        <ol class="news-list" id="news-list"></ol>
+        <ol class="news-groups" id="news-list"></ol>
         <noscript><p>請啟用 JavaScript 以顯示最新消息。</p></noscript>
       </div>
     </section>
@@ -2646,7 +2658,7 @@
   <script id="latest-news-script">
     (() => {
       const words = {
-        'zh-Hant': { kicker:'NEWS', title:'最新消息', loading:'正在讀取最新消息…', empty:'目前 Google 快訊尚無新聞，之後會自動更新。', error:'暫時無法讀取最新消息。若這是首次上線，請先執行 Update Google Alerts news 工作流程。', retry:'重新讀取', updated:'資料更新：', source:'新聞來源' },
+        'zh-Hant': { kicker:'NEWS', title:'最新消息', loading:'正在讀取最新消息…', empty:'目前 Google 快訊尚無新聞，之後會自動更新。', error:'暫時無法讀取最新消息。若這是首次上線，請先執行新版 Update Google Alerts news 工作流程，補齊快訊分類。', retry:'重新讀取', updated:'資料更新：', source:'新聞來源' },
         en: { kicker:'NEWS', title:'Latest news', loading:'Loading the latest news…', empty:'No news is available in Google Alerts yet. This section updates automatically.', error:'News is temporarily unavailable. On first setup, run the Update Google Alerts news workflow.', retry:'Try again', updated:'Updated: ', source:'News source' },
         fr: { kicker:'ACTUALITÉS', title:'Dernières actualités', loading:'Chargement des actualités…', empty:'Aucune actualité dans Google Alertes pour le moment. Cette rubrique sera mise à jour automatiquement.', error:'Actualités indisponibles. Lors de la première installation, lancez le workflow Update Google Alerts news.', retry:'Réessayer', updated:'Mise à jour : ', source:'Source' },
         it: { kicker:'NOTIZIE', title:'Ultime notizie', loading:'Caricamento delle notizie…', empty:'Nessuna notizia disponibile su Google Alert per il momento. Questa sezione si aggiorna automaticamente.', error:'Notizie non disponibili. Al primo utilizzo, esegui il workflow Update Google Alerts news.', retry:'Riprova', updated:'Aggiornato: ', source:'Fonte' },
@@ -2654,6 +2666,22 @@
         ja: { kicker:'ニュース', title:'最新ニュース', loading:'ニュースを読み込み中…', empty:'Google アラートのニュースはまだありません。自動で更新されます。', error:'ニュースを読み込めません。初回は Update Google Alerts news ワークフローを実行してください。', retry:'再読み込み', updated:'更新：', source:'ニュース配信元' },
         ko: { kicker:'소식', title:'최신 소식', loading:'최신 소식을 불러오는 중…', empty:'아직 Google 알리미에 뉴스가 없습니다. 자동으로 업데이트됩니다.', error:'소식을 불러올 수 없습니다. 처음 설정할 때 Update Google Alerts news 워크플로를 실행해 주세요.', retry:'다시 불러오기', updated:'업데이트: ', source:'뉴스 출처' }
       };
+      const groups = [{ key:'color-psychology' }, { key:'ai-effects' }, { key:'color' }];
+      const groupWords = {
+        'zh-Hant': { names:['色彩心理','AI效應','color'], more:'查看更多（{n} 則）', less:'收合消息', count:'共 {n} 則', empty:'目前沒有這類快訊。' },
+        en: { names:['Color psychology','AI effects','color'], more:'Show more ({n})', less:'Show less', count:'{n} articles', empty:'No alerts in this category yet.' },
+        fr: { names:['Psychologie des couleurs','Effets de l’IA','color'], more:'Voir plus ({n})', less:'Réduire', count:'{n} articles', empty:'Aucune alerte dans cette catégorie.' },
+        it: { names:['Psicologia del colore','Effetti dell’IA','color'], more:'Mostra altre ({n})', less:'Mostra meno', count:'{n} notizie', empty:'Nessun avviso in questa categoria.' },
+        de: { names:['Farbpsychologie','KI-Effekte','color'], more:'Mehr anzeigen ({n})', less:'Weniger anzeigen', count:'{n} Artikel', empty:'Noch keine Meldungen in dieser Kategorie.' },
+        ja: { names:['色彩心理','AI の影響','color'], more:'もっと見る（{n}件）', less:'折りたたむ', count:'全{n}件', empty:'このカテゴリのニュースはまだありません。' },
+        ko: { names:['색채 심리','AI의 영향','color'], more:'더 보기 ({n}개)', less:'접기', count:'총 {n}개', empty:'아직 이 분류의 소식이 없습니다.' }
+      };
+      function categoryFor(item) {
+        // Exact feed category metadata, never an inference from article text.
+        const key = String(item.category || '').trim();
+        const aliases = { '色彩心理':'color-psychology', 'AI效應':'ai-effects', 'AI 效應':'ai-effects' };
+        return aliases[key] || (groups.some(group => group.key === key) ? key : null);
+      }
       const list = document.getElementById('news-list');
       const status = document.getElementById('news-status');
       const updated = document.getElementById('news-updated');
@@ -2682,10 +2710,12 @@
         retry.hidden = state !== 'error';
         const stamp = dateText(updatedAt, true);
         updated.textContent = stamp ? text.updated + stamp : '';
+        const openGroups = new Set(Array.from(list.querySelectorAll('details[open]')).map(node => node.dataset.category));
+        const labels = groupWords[language()];
         const fragment = document.createDocumentFragment();
-        if (state === 'ready') items.forEach(item => {
+        function createCard(item) {
           const row = document.createElement('li'); row.className = 'news-item';
-          const title = document.createElement('h3');
+          const title = document.createElement('h4');
           const link = document.createElement('a');
           link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
           link.textContent = item.title; title.appendChild(link); row.appendChild(title);
@@ -2696,7 +2726,32 @@
           if (date) { const time = document.createElement('time'); time.dateTime = item.published_at; time.textContent = date; meta.appendChild(time); }
           row.appendChild(meta);
           if (item.summary) { const summary = document.createElement('p'); summary.className = 'news-summary'; summary.textContent = item.summary; row.appendChild(summary); }
-          fragment.appendChild(row);
+          return row;
+        }
+        if (state === 'ready') groups.forEach((group, index) => {
+          const entries = items.filter(item => categoryFor(item) === group.key);
+          const section = document.createElement('li'); section.className = 'news-group';
+          const heading = document.createElement('div'); heading.className = 'news-group-heading';
+          const title = document.createElement('h3'); title.textContent = labels.names[index];
+          const count = document.createElement('span'); count.className = 'news-count'; count.textContent = labels.count.replace('{n}', entries.length);
+          heading.append(title, count); section.appendChild(heading);
+          const preview = document.createElement('ol'); preview.className = 'news-list';
+          entries.slice(0, 3).forEach(item => preview.appendChild(createCard(item)));
+          section.appendChild(preview);
+          if (!entries.length) {
+            const empty = document.createElement('p'); empty.className = 'news-status'; empty.textContent = labels.empty; section.appendChild(empty);
+          }
+          if (entries.length > 3) {
+            const details = document.createElement('details'); details.className = 'news-more'; details.dataset.category = group.key;
+            details.open = openGroups.has(group.key);
+            const summary = document.createElement('summary');
+            const updateLabel = () => { summary.textContent = details.open ? labels.less : labels.more.replace('{n}', entries.length - 3); };
+            updateLabel(); details.addEventListener('toggle', updateLabel);
+            const extra = document.createElement('ol'); extra.className = 'news-list'; extra.start = 4;
+            entries.slice(3).forEach(item => extra.appendChild(createCard(item)));
+            details.append(summary, extra); section.appendChild(details);
+          }
+          fragment.appendChild(section);
         });
         list.replaceChildren(fragment);
       }
@@ -2710,10 +2765,18 @@
           const data = await response.json();
           if (!data || !Array.isArray(data.items)) throw new Error('Invalid news data');
           items = data.items.filter(item => item && typeof item.title === 'string' && item.title.trim() && safeUrl(item.url))
-            .slice(0, 10).map(item => ({ title:item.title.slice(0, 200), url:safeUrl(item.url), source:typeof item.source === 'string' ? item.source.slice(0, 100) : '', published_at:typeof item.published_at === 'string' ? item.published_at : '', summary:typeof item.summary === 'string' ? item.summary.slice(0, 300) : '' }));
+            .map(item => ({ category:typeof item.category === 'string' ? item.category.slice(0, 100) : '', title:item.title.slice(0, 200), url:safeUrl(item.url), source:typeof item.source === 'string' ? item.source.slice(0, 100) : '', published_at:typeof item.published_at === 'string' ? item.published_at : '', summary:typeof item.summary === 'string' ? item.summary.slice(0, 300) : '' }));
+          const seen = new Set();
+          items = items.filter(item => {
+            const category = categoryFor(item);
+            if (!category) throw new Error('Run the updated news workflow to add feed categories');
+            const key = category + '|' + item.url;
+            if (seen.has(key)) return false;
+            seen.add(key); return true;
+          }).sort((a, b) => (Date.parse(b.published_at) || 0) - (Date.parse(a.published_at) || 0));
           if (data.items.length && !items.length) throw new Error('No usable news data');
           updatedAt = typeof data.updated_at === 'string' ? data.updated_at : '';
-          state = items.length ? 'ready' : 'empty';
+          state = 'ready';
         } catch (_) { state = 'error'; updatedAt = ''; }
         finally { window.clearTimeout(timeout); render(); }
       }
