@@ -2,285 +2,172 @@ name: Update Google Alerts news
 
 on:
   schedule:
-    # UTC 00:00 = 台灣時間每天早上 08:00。
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # Taiwan 08:00 (UTC+8); GitHub may delay scheduled runs.
   workflow_dispatch:
 
 permissions:
   contents: write
   pages: write
+  id-token: write
 
 concurrency:
-  group: update-news
+  group: update-google-alerts-news
   cancel-in-progress: false
 
 jobs:
   update-news:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      TARGET_BRANCH: ${{ github.event.repository.default_branch }}
-      RSS_URLS: |
-        https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376
-        https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855
-        https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout the default branch
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ env.TARGET_BRANCH }}
-          fetch-depth: 0
-
-      - name: Fetch Atom or RSS and write news.json
+      - uses: actions/checkout@v4
+      - name: Fetch alerts and preserve their original categories
         shell: bash
         run: |
-          python3 - <<'PY'
-          import json, os, time, tempfile
-          import urllib.request, urllib.parse
-          from concurrent.futures import ThreadPoolExecutor
-          import xml.etree.ElementTree as ET
-          from datetime import datetime, timezone
-          from email.utils import parsedate_to_datetime
-          from html import unescape
+          python3 <<'PY'
+          import datetime as dt
+          import email.utils
+          import html
           from html.parser import HTMLParser
+          import json
           from pathlib import Path
+          import re
+          import urllib.parse
+          import urllib.request
+          import xml.etree.ElementTree as ET
+
+          FEEDS = [
+              'https://www.google.com.tw/alerts/feeds/10594208169593525725/16445985547973540376',
+              'https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855',
+              'https://www.google.com.tw/alerts/feeds/10594208169593525725/762068992082586163',
+          ]
+          CATEGORIES = [
+              {'id': 'color-psychology', 'name': '色彩心理'},
+              {'id': 'ai-effects', 'name': 'AI效應'},
+              {'id': 'color', 'name': 'color'},
+          ]
 
           class PlainText(HTMLParser):
               def __init__(self):
-                  super().__init__(convert_charrefs=True)
+                  super().__init__()
                   self.parts = []
-                  self.hidden = 0
-              def handle_starttag(self, tag, attrs):
-                  if tag in ('script', 'style'):
-                      self.hidden += 1
-                  elif tag in ('br', 'p', 'div', 'li'):
-                      self.parts.append(' ')
-              def handle_endtag(self, tag):
-                  if tag in ('script', 'style') and self.hidden:
-                      self.hidden -= 1
-                  elif tag in ('p', 'div', 'li'):
-                      self.parts.append(' ')
-              def handle_data(self, value):
-                  if not self.hidden:
-                      self.parts.append(value)
+              def handle_data(self, data):
+                  self.parts.append(data)
 
-          def plain(value, limit=300):
+          def clean(value):
               parser = PlainText()
               parser.feed(value or '')
-              return ' '.join(''.join(parser.parts).split())[:limit]
+              return re.sub(r'\s+', ' ', html.unescape(''.join(parser.parts))).strip()
 
-          def tag_name(element):
-              return element.tag.rsplit('}', 1)[-1]
+          def local(tag):
+              return tag.rsplit('}', 1)[-1]
 
-          def child(element, name):
-              return next((e for e in element if tag_name(e) == name), None)
+          def child(node, name):
+              return next((n for n in node if local(n.tag) == name), None)
 
-          def content(element, name):
-              node = child(element, name)
-              return ''.join(node.itertext()).strip() if node is not None else ''
+          def text(node, name):
+              value = child(node, name)
+              return ''.join(value.itertext()).strip() if value is not None else ''
+
+          def category_from_title(title):
+              normalized = re.sub(r'\s+', '', title).casefold()
+              # A Google Alerts feed title contains its original alert query.
+              for category in CATEGORIES:
+                  if category['name'].casefold() in normalized:
+                      return category['id']
+              raise ValueError('Unrecognized Google Alerts feed title: ' + title)
 
           def article_url(value):
-              value = unescape(value or '').strip()
-              if any(ord(c) < 32 for c in value):
+              parsed = urllib.parse.urlsplit(value)
+              host = (parsed.hostname or '').lower()
+              if host == 'google.com' or host.endswith('.google.com') or host == 'google.com.tw' or host.endswith('.google.com.tw'):
+                  params = urllib.parse.parse_qs(parsed.query)
+                  value = (params.get('url') or params.get('q') or [value])[0]
+              parsed = urllib.parse.urlsplit(value)
+              if parsed.scheme not in ('https', 'http') or not parsed.hostname or parsed.username or parsed.password:
                   return ''
-              try:
-                  parsed = urllib.parse.urlsplit(value)
-                  if parsed.hostname in ('www.google.com', 'www.google.com.tw', 'google.com', 'google.com.tw') and parsed.path == '/url':
-                      query = urllib.parse.parse_qs(parsed.query)
-                      value = (query.get('url') or query.get('q') or [value])[0]
-                      parsed = urllib.parse.urlsplit(value)
-                  if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password:
-                      return ''
-                  return urllib.parse.urlunsplit(parsed._replace(fragment=''))
-              except ValueError:
-                  return ''
+              return urllib.parse.urlunsplit(parsed._replace(fragment=''))
 
-          def date_string(value):
+          def timestamp(value):
               if not value:
                   return ''
               try:
-                  date = datetime.fromisoformat(value.replace('Z', '+00:00'))
+                  date = dt.datetime.fromisoformat(value.replace('Z', '+00:00'))
               except ValueError:
                   try:
-                      date = parsedate_to_datetime(value)
-                  except (ValueError, TypeError, OverflowError):
+                      date = email.utils.parsedate_to_datetime(value)
+                  except (ValueError, TypeError):
                       return ''
               if date.tzinfo is None:
-                  date = date.replace(tzinfo=timezone.utc)
-              return date.astimezone(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+                  date = date.replace(tzinfo=dt.timezone.utc)
+              return date.astimezone(dt.timezone.utc).isoformat()
 
-          def parse_feed(data):
-              tree = ET.fromstring(data)
-              kind = tag_name(tree)
-              if kind == 'feed':
-                  entries = [e for e in tree if tag_name(e) == 'entry']
-              elif kind == 'rss':
-                  channel = child(tree, 'channel')
-                  if channel is None:
-                      raise ValueError('RSS is missing its channel; previous news.json is retained.')
-                  entries = [e for e in channel if tag_name(e) == 'item']
+          items, seen, found, feed_info = [], set(), set(), []
+          for feed_url in FEEDS:
+              request = urllib.request.Request(feed_url, headers={'User-Agent': 'Colorlife-News/1.0'})
+              with urllib.request.urlopen(request, timeout=40) as response:
+                  root = ET.fromstring(response.read())
+              if local(root.tag) == 'feed':
+                  container = root
+              elif local(root.tag) == 'rss':
+                  container = child(root, 'channel')
               else:
-                  raise ValueError('Expected an Atom/RSS feed; previous news.json is retained.')
-              rows = []
-              for entry in entries:
-                  if kind == 'feed':
-                      links = [e for e in entry if tag_name(e) == 'link' and e.get('rel', 'alternate') == 'alternate']
-                      raw_url = next((e.get('href', '') for e in links if e.get('type', 'text/html') == 'text/html'), '')
-                      published = content(entry, 'published') or content(entry, 'updated')
-                      summary = content(entry, 'summary') or content(entry, 'content')
-                  else:
-                      raw_url = content(entry, 'link')
-                      published = content(entry, 'pubDate')
-                      summary = content(entry, 'description')
-                  url = article_url(raw_url)
-                  title = plain(content(entry, 'title'), 200)
-                  if not title or not url:
+                  raise ValueError('Unexpected feed response; existing news.json was not changed')
+              if container is None:
+                  raise ValueError('Feed channel missing')
+              feed_title = clean(text(container, 'title'))
+              category = category_from_title(feed_title)
+              found.add(category)
+              feed_info.append({'url': feed_url, 'title': feed_title, 'category': category})
+              for entry in container:
+                  if local(entry.tag) not in ('entry', 'item'):
                       continue
-                  source = plain(content(entry, 'source'), 100) or urllib.parse.urlsplit(url).hostname.removeprefix('www.')
-                  rows.append({'title': title, 'url': url, 'source': source,
-                               'published_at': date_string(published), 'summary': plain(summary)})
-              if entries and not rows:
-                  raise ValueError('The feed has entries but no usable article links; previous news.json is retained.')
-              rows.sort(key=lambda item: item['published_at'], reverse=True)
-              result, seen = [], set()
-              for row in rows:
-                  if row['url'] not in seen:
-                      seen.add(row['url'])
-                      result.append(row)
-              return result[:10]
-
-          def fetch_feed(url):
-              for attempt in range(3):
-                  try:
-                      request = urllib.request.Request(url, headers={
-                          'User-Agent': 'Mozilla/5.0 (compatible; PersonalNews/1.0)',
-                          'Accept': 'application/atom+xml, application/rss+xml, application/xml, text/xml'})
-                      with urllib.request.urlopen(request, timeout=30) as response:
-                          data = response.read(5_000_001)
-                      if len(data) > 5_000_000:
-                          raise ValueError('Feed exceeds the 5 MB limit.')
-                      return {'ok': True, 'items': parse_feed(data)}
-                  except Exception as error:
-                      if attempt == 2:
-                          return {'ok': False, 'error': type(error).__name__}
-                      time.sleep(2 ** (attempt + 1))
-
-          def previous_items(previous, url):
-              cache = previous.get('feed_cache', {})
-              if not isinstance(cache, dict):
-                  cache = {}
-              rows = cache.get(url)
-              # Migration from the original single-feed news.json.
-              legacy_url = 'https://www.google.com.tw/alerts/feeds/10594208169593525725/9096331103681265855'
-              if not isinstance(rows, list):
-                  rows = previous.get('items', []) if url == legacy_url and not cache else []
-              if not isinstance(rows, list):
-                  return []
-              result = []
-              for row in rows:
-                  if not isinstance(row, dict) or not isinstance(row.get('title'), str):
+                  title = clean(text(entry, 'title'))
+                  link = next((n.get('href', '') for n in entry if local(n.tag) == 'link' and n.get('rel', 'alternate') == 'alternate' and n.get('href')), '')
+                  url = article_url(link or text(entry, 'link'))
+                  key = (category, url)
+                  if not title or not url or key in seen:
                       continue
-                  link = article_url(row.get('url', ''))
-                  if not link:
-                      continue
-                  result.append({'title': row['title'][:200], 'url': link,
-                                 'source': str(row.get('source', ''))[:100],
-                                 'published_at': date_string(str(row.get('published_at', ''))),
-                                 'summary': str(row.get('summary', ''))[:300]})
-              return result[:10]
-
-          def combine_feeds(groups):
-              rows = []
-              for url, items in groups.items():
-                  rows.extend(dict(item, feed_urls=[url]) for item in items)
-              rows.sort(key=lambda item: item['published_at'], reverse=True)
-              merged = {}
-              for row in rows:
-                  if row['url'] not in merged:
-                      merged[row['url']] = row
-                  else:
-                      existing = merged[row['url']]['feed_urls']
-                      existing.extend(url for url in row['feed_urls'] if url not in existing)
-              return list(merged.values())[:10]
-
-          def main():
-              urls = list(dict.fromkeys(url.strip() for url in os.environ['RSS_URLS'].splitlines() if url.strip()))
-              if not urls:
-                  raise ValueError('RSS_URLS is empty.')
-              try:
-                  previous = json.loads(Path('news.json').read_text(encoding='utf-8'))
-                  if not isinstance(previous, dict):
-                      previous = {}
-              except (OSError, ValueError):
-                  previous = {}
-              with ThreadPoolExecutor(max_workers=min(len(urls), 3)) as executor:
-                  results = list(executor.map(fetch_feed, urls))
-              if not any(result['ok'] for result in results):
-                  raise RuntimeError('All feeds failed; the existing news.json is retained.')
-              cache, statuses = {}, []
-              for url, result in zip(urls, results):
-                  if result['ok']:
-                      cache[url] = result['items']
-                      statuses.append({'url': url, 'status': 'ok', 'count': len(cache[url])})
-                  else:
-                      cache[url] = previous_items(previous, url)
-                      statuses.append({'url': url, 'status': 'stale' if cache[url] else 'error', 'count': len(cache[url])})
-                      print('::warning::One RSS feed failed; available cached items were retained. Feed: ' + url)
-              payload = {'updated_at': datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z'),
-                         'items': combine_feeds(cache), 'feeds': statuses, 'feed_cache': cache}
-              target = Path('news.json')
-              temporary = None
-              try:
-                  with tempfile.NamedTemporaryFile('w', encoding='utf-8', dir=target.parent, delete=False) as output:
-                      temporary = Path(output.name)
-                      json.dump(payload, output, ensure_ascii=False, indent=2)
-                      output.write('\n')
-                  temporary.replace(target)
-              finally:
-                  if temporary is not None:
-                      temporary.unlink(missing_ok=True)
-              print(f"Updated news.json with {len(payload['items'])} news item(s).")
-
-          if __name__ == '__main__':
-              main()
+                  seen.add(key)
+                  published = timestamp(text(entry, 'published') or text(entry, 'pubDate') or text(entry, 'updated'))
+                  items.append({
+                      'category': category,
+                      'feed_title': feed_title,
+                      'title': title[:200],
+                      'url': url,
+                      'source': urllib.parse.urlsplit(url).hostname,
+                      'published_at': published,
+                      'summary': clean(text(entry, 'content') or text(entry, 'summary') or text(entry, 'description'))[:300],
+                  })
+          if found != {c['id'] for c in CATEGORIES}:
+              raise ValueError('The three RSS feeds do not match all three alert categories; existing news.json was not changed')
+          items.sort(key=lambda item: item['published_at'], reverse=True)
+          result = {'updated_at': dt.datetime.now(dt.timezone.utc).isoformat(), 'categories': CATEGORIES, 'feeds': feed_info, 'items': items}
+          Path('news.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print('Fetched', len(items), 'articles across the three original alert categories.')
           PY
-
-      - name: Commit and push news.json
-        id: commit
+      - name: Commit news.json if changed
         shell: bash
         run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- news.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add news.json
           if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo 'No news changes.'
             exit 0
           fi
-          git commit -m "Update Google Alerts news"
-          git pull --rebase origin "$TARGET_BRANCH"
-          git push origin "HEAD:$TARGET_BRANCH"
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-
-      # GITHUB_TOKEN 的 commit 不會自行觸發 Pages 重建，因此明確提出重建要求。
-      # 此預設適用於 Pages 從預設分支根目錄 (/) 發布的網站。
-      - name: Rebuild branch-based GitHub Pages
-        if: steps.commit.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          site=$(gh api "repos/$GITHUB_REPOSITORY/pages")
-          build_type=$(jq -r '.build_type' <<< "$site")
-          if [ "$build_type" = "workflow" ]; then
-            echo "::warning::news.json 已更新。你的 Pages 使用自訂 Actions 部署；請讓該部署 workflow 透過 workflow_run 監聽 Update Google Alerts news 完成後重新部署。"
-          else
-            source_branch=$(jq -r '.source.branch' <<< "$site")
-            source_path=$(jq -r '.source.path' <<< "$site")
-            if [ "$source_branch" != "$TARGET_BRANCH" ] || [ "$source_path" != "/" ]; then
-              echo "::error::news.json 已寫入預設分支根目錄；請確認 index.html 與 news.json 位於 Pages 的同一個發布目錄。"
-              exit 1
-            fi
-            gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" > /dev/null
-          fi
+          git commit -m 'Update categorized Google Alerts news'
+          git push
+      # Publish the refreshed root directory as the GitHub Pages site.
+      # In Settings > Pages, select GitHub Actions as the build source.
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload GitHub Pages site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
