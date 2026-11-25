@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fffcfa">
+<title>HEIC 轉 JPG 工具</title>
+<style>
+:root{
+  color-scheme:light;
+  --ink:#383e43; --muted:#6a6868; --bg:#fffcfa; --soft:#faf1ec; --line:#e8dfdb;
+  --teal:#48636b; --teal-dark:#395a64; --blue:#8ab3ca; --coral:#ed968f; --peach:#f0bea1;
+  --sage:#d2dca6; --mint:#9bcfc2; --sand:#efce92;
+  --ok:#3f7d62; --err:#b8473f;
+  --radius-lg:22px; --radius-md:16px;
+  --shadow:0 18px 50px rgba(98,74,68,.06);
+  --serif:"Songti TC","Noto Serif TC","PMingLiU",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.8;
+  background:radial-gradient(ellipse at 88% 8%,rgba(246,186,163,.15),transparent 35rem),
+             radial-gradient(ellipse at 2% 60%,rgba(184,222,210,.10),transparent 32rem),#fffcfa;
+  min-height:100vh;
+}
+::selection{color:#fff;background:#517f89}
+.top{padding:18px max(16px,env(safe-area-inset-left,0px)) 0;}
+.top-in{width:min(960px,100%);margin:0 auto;min-height:44px;display:flex;align-items:center;justify-content:flex-end}
+.home{display:inline-flex;align-items:center;min-height:40px;padding:0 4px;border-radius:999px;color:var(--teal);text-decoration:none;font-size:14px}
+.home:hover,.home:focus-visible{text-decoration:underline;text-underline-offset:4px;outline:none}
+.wrap{width:min(960px,100%);margin:0 auto;padding:44px max(16px,env(safe-area-inset-left,0px)) 80px}
+h1{margin:0;font-family:var(--serif);font-size:clamp(2rem,5vw,3.2rem);font-weight:600;line-height:1.16;letter-spacing:-.045em;color:var(--teal)}
+.stripe{width:104px;height:5px;margin:22px 0 18px;border-radius:999px;background:linear-gradient(90deg,var(--coral) 0%,var(--peach) 25%,var(--sage) 50%,var(--mint) 75%,var(--blue) 100%)}
+.lead{margin:0 0 32px;color:#626367;max-width:40em}
+
+/* 拖曳框 */
+.drop{position:relative;min-height:320px;padding:44px 28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  border:2px dashed #d8cbc5;border-radius:var(--radius-lg);background:#fff;box-shadow:var(--shadow);cursor:pointer;transition:border-color .2s,background .2s}
+.drop::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(ellipse at 0 0,rgba(191,221,211,.25),transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(245,208,190,.22),transparent 62%)}
+.drop > *{position:relative}
+.drop:hover,.drop.over,.drop:focus-visible{border-color:var(--teal);outline:none}
+.drop.over{background:#f6fbf9}
+.drop.has{justify-content:flex-start;align-items:stretch;text-align:left;border-style:solid;border-color:var(--line)}
+.drop-ic{width:56px;height:56px;margin:0 auto 16px;color:var(--teal)}
+.drop.has .drop-ic{display:none}
+.drop strong{display:block;font-family:var(--serif);font-size:clamp(1.3rem,3vw,1.7rem);font-weight:600;color:var(--teal);letter-spacing:-.02em}
+.drop.has strong{text-align:center}
+.drop #dropSub{display:block;margin-top:6px;color:var(--muted);font-size:14px}
+.drop.has #dropSub{text-align:center}
+.staged{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:8px;max-height:340px;overflow:auto;cursor:default}
+.staged li{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:12px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:14px}
+.staged .no{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.staged .fn{overflow-wrap:anywhere}
+.staged .sz{color:var(--muted);font-size:12px;white-space:nowrap}
+.staged .rm{appearance:none;border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;border-radius:8px;padding:2px 9px}
+.staged .rm:hover{color:var(--err)}
+.staged .rm:focus-visible{outline:2px solid var(--teal)}
+
+/* 設定：緊湊的單列 */
+.panel{margin-top:14px;padding:10px 24px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;gap:8px 28px}
+.opts label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);white-space:nowrap;min-width:0}
+.opts .row{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.opts input[type=range]{flex:1;min-width:0;accent-color:#ec8f7e}
+.q{min-width:3.2ch;color:#c9674f;font-weight:700;font-variant-numeric:tabular-nums}
+.opts select{flex:1;min-width:0;min-height:36px;padding:0 10px;font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:999px;cursor:pointer;max-width:100%}
+.opts select:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.hint{margin:8px 4px 0;font-size:12px;color:var(--muted)}
+
+/* 開始轉換（位於檔案大小限制下方） */
+.go{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:flex-end;margin-top:22px}
+.btn{appearance:none;min-height:54px;padding:13px 30px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--teal);border-radius:999px;
+  color:#fff;background:var(--teal);box-shadow:0 7px 18px rgba(89,105,105,.09);font:inherit;font-weight:700;letter-spacing:.04em;text-decoration:none;cursor:pointer;
+  transition:transform .18s,box-shadow .18s,background .18s}
+.btn:hover,.btn:focus-visible{background:var(--teal-dark);transform:translateY(-2px);box-shadow:0 9px 22px rgba(89,105,105,.14);outline:none}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.btn.ghost{color:var(--teal);background:#fff;border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{background:var(--soft)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.go .btn:first-child{min-width:240px}
+.go .msg{order:-1;margin-right:auto}
+.go #startBtn{order:1;color:#fff;background:#e0806c;border-color:#e0806c;box-shadow:0 7px 18px rgba(224,128,108,.18)}
+.go #startBtn:hover,.go #startBtn:focus-visible{background:#d06f5b;border-color:#d06f5b;box-shadow:0 9px 22px rgba(224,128,108,.26)}
+.go #startBtn[disabled]{opacity:1;color:#b0634d;background:#f6dccf;border-color:#f0c9b8;box-shadow:none;transform:none}
+.msg{font-size:13px;color:var(--muted)}
+
+/* 結果 */
+.bar{display:flex;flex-wrap:wrap;gap:12px;margin:40px 0 16px}
+.bar .btn{min-height:46px;padding:9px 22px}
+.list{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.item{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:16px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:12px 16px 12px 12px}
+.thumb{width:72px;height:72px;border-radius:12px;background:var(--soft) center/cover no-repeat}
+.item .name{font-weight:600;overflow-wrap:anywhere}
+.item .no{display:inline-block;margin-right:8px;color:var(--teal);font-variant-numeric:tabular-nums}
+.meta{font-size:13px;color:var(--muted)}
+.meta.ok{color:var(--ok)} .meta.err{color:var(--err)}
+.act .btn{min-height:42px;padding:8px 20px;font-size:14px}
+.note{margin-top:32px;font-size:13px;color:var(--muted)}
+@media (max-width:760px){
+  .panel{border-radius:var(--radius-md)}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+  .opts label:first-child{grid-column:1 / -1}
+  .opts label{flex-direction:column;align-items:stretch;gap:4px}
+  .opts input[type=range]{flex:1;width:auto}
+  .drop{min-height:260px;padding:32px 18px}
+  .go .btn:first-child{width:100%}
+}
+@media (max-width:520px){
+  .item{grid-template-columns:60px minmax(0,1fr)}
+  .thumb{width:60px;height:60px}
+  .act{grid-column:1 / -1}
+  .act .btn{width:100%}
+  .staged li{grid-template-columns:30px minmax(0,1fr) auto}
+  .staged .sz{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="home" href="index.html">← 回首頁</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>HEIC 轉 JPG</h1>
+  <div class="stripe" aria-hidden="true"></div>
+
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="選擇或拖曳 HEIC 檔案">
+    <svg class="drop-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 32V10M16 18l8-8 8 8"/><path d="M8 30v6a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-6"/></svg>
+    <strong>拖曳照片到這裡，或點一下選擇檔案</strong>
+    <span id="dropSub">支援 .heic、.heif，可多選，放入後按「開始轉換」</span>
+    <ol class="staged" id="staged" hidden></ol>
+    <input id="file" type="file" accept=".heic,.heif,image/heic,image/heif" multiple hidden>
+  </div>
+
+  <section class="panel" aria-label="輸出設定">
+    <div class="opts">
+      <label for="quality">JPG 品質
+        <span class="row"><input id="quality" type="range" min="50" max="100" step="5" value="90"><span class="q" id="qv">90%</span></span>
+      </label>
+      <label for="dim">圖片尺寸
+        <select id="dim">
+          <option value="0" selected>原始尺寸</option>
+          <option value="3000">長邊 3000 px</option>
+          <option value="2048">長邊 2048 px</option>
+          <option value="1600">長邊 1600 px</option>
+          <option value="1200">長邊 1200 px</option>
+          <option value="800">長邊 800 px</option>
+          <option value="480">長邊 480 px</option>
+        </select>
+      </label>
+      <label for="cap">檔案大小限制
+        <select id="cap">
+          <option value="0" selected>不限制</option>
+          <option value="5120">5 MB 以內</option>
+          <option value="2048">2 MB 以內</option>
+          <option value="1024">1 MB 以內</option>
+          <option value="500">500 KB 以內</option>
+          <option value="200">200 KB 以內</option>
+          <option value="100">100 KB 以內</option>
+        </select>
+      </label>
+    </div>
+  </section>
+  <p class="hint">按下「開始轉換」時套用設定。設定大小限制時，會先降低品質，必要時再縮小尺寸。</p>
+
+  <div class="go">
+    <button class="btn" id="startBtn" type="button" disabled>開始轉換</button>
+    <button class="btn ghost" id="emptyBtn" type="button" hidden>清空放入的檔案</button>
+    <span class="msg" id="msg" role="status"></span>
+  </div>
+
+  <div class="bar" id="bar" hidden>
+    <button class="btn" id="zipBtn" type="button" disabled>全部打包下載 (ZIP)</button>
+    <button class="btn ghost" id="clearBtn" type="button">清除結果</button>
+  </div>
+  <ul class="list" id="list"></ul>
+
+  <p class="note">轉換在你的瀏覽器內完成，照片不會上傳到任何伺服器。大張照片需要幾秒鐘，請稍候。</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+
+(function(){
+  var drop=document.getElementById('drop'), input=document.getElementById('file'),
+      list=document.getElementById('list'), bar=document.getElementById('bar'),
+      zipBtn=document.getElementById('zipBtn'), clearBtn=document.getElementById('clearBtn'),
+      quality=document.getElementById('quality'), qv=document.getElementById('qv');
+  var results=[]; // {name, blob, url}
+  var queue=Promise.resolve();
+
+  quality.addEventListener('input',function(){qv.textContent=quality.value+'%';});
+  drop.addEventListener('click',function(){input.click();});
+  drop.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click();}});
+  ['dragenter','dragover'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('over');});});
+  ['dragleave','drop'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('over');});});
+  drop.addEventListener('drop',function(e){addFiles(e.dataTransfer.files);});
+  input.addEventListener('change',function(){addFiles(input.files);input.value='';});
+  clearBtn.addEventListener('click',function(){
+    results.forEach(function(r){URL.revokeObjectURL(r.url);});
+    results=[];list.innerHTML='';bar.hidden=true;
+  });
+  zipBtn.addEventListener('click',function(){
+    if(!window.JSZip){return;}
+    zipBtn.disabled=true;var old=zipBtn.textContent;zipBtn.textContent='打包中…';
+    var zip=new JSZip(),used={};
+    results.forEach(function(r){
+      var n=r.name;if(used[n]){var k=used[n]++;n=n.replace(/\.jpg$/,'')+'-'+k+'.jpg';}else{used[n]=1;}
+      zip.file(n,r.blob);
+    });
+    zip.generateAsync({type:'blob'}).then(function(b){
+      save(b,'heic-to-jpg.zip');
+    }).catch(function(){alert('打包失敗，請改用單張下載。');}).then(function(){
+      zipBtn.textContent=old;zipBtn.disabled=results.length===0;
+    });
+  });
+
+  function save(blob,name){
+    var u=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u);},4000);
+  }
+  function baseName(n){return n.replace(/\.[^.]+$/,'');}
+  function fmt(b){return b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';}
+
+  var pending=[];
+  var staged=document.getElementById('staged'),startBtn=document.getElementById('startBtn'),
+      emptyBtn=document.getElementById('emptyBtn'),msg=document.getElementById('msg'),
+      dropSub=document.getElementById('dropSub');
+  staged.addEventListener('click',function(e){e.stopPropagation();});
+
+  function renderStaged(){
+    staged.innerHTML='';
+    pending.forEach(function(f,i){
+      var li=document.createElement('li');
+      var no=document.createElement('span');no.className='no';no.textContent=i+1;
+      var fn=document.createElement('span');fn.className='fn';fn.textContent=f.name;
+      var sz=document.createElement('span');sz.className='sz';sz.textContent=fmt(f.size);
+      var rm=document.createElement('button');rm.className='rm';rm.type='button';rm.textContent='×';
+      rm.setAttribute('aria-label','移除第 '+(i+1)+' 個檔案');
+      rm.addEventListener('click',function(){pending.splice(i,1);renderStaged();});
+      li.appendChild(no);li.appendChild(fn);li.appendChild(sz);li.appendChild(rm);
+      staged.appendChild(li);
+    });
+    var n=pending.length;
+    staged.hidden=!n;drop.classList.toggle('has',!!n);
+    emptyBtn.hidden=!n;startBtn.disabled=!n;
+    startBtn.textContent=n?'開始轉換（'+n+' 個檔案）':'開始轉換';
+    dropSub.textContent=n?'已放入 '+n+' 個檔案，確認後按「開始轉換」。還可以繼續拖曳加入。':'支援 .heic、.heif，可多選，放入後按「開始轉換」';
+  }
+
+  function addFiles(files){
+    var skipped=0,dup=0;
+    Array.prototype.forEach.call(files,function(f){
+      var ok=/\.(heic|heif)$/i.test(f.name)||/image\/hei[cf]/i.test(f.type);
+      if(!ok){skipped++;return;}
+      var same=pending.some(function(p){return p.name===f.name&&p.size===f.size&&p.lastModified===f.lastModified;});
+      if(same){dup++;return;}
+      pending.push(f);
+    });
+    var t=[];
+    if(skipped){t.push('已略過 '+skipped+' 個不是 HEIC / HEIF 的檔案');}
+    if(dup){t.push(dup+' 個重複的檔案未重複加入');}
+    msg.textContent=t.join('，');
+    renderStaged();
+  }
+
+  emptyBtn.addEventListener('click',function(){pending=[];msg.textContent='';renderStaged();});
+  startBtn.addEventListener('click',function(){
+    if(!pending.length){return;}
+    var dimV=document.getElementById('dim').value,capV=document.getElementById('cap').value;
+    var batch=pending;pending=[];msg.textContent='';renderStaged();
+    batch.forEach(function(f,i){
+      var li=document.createElement('li');li.className='item';
+      li.innerHTML='<div class="thumb"></div><div><div class="name"><span class="no"></span><span class="fname"></span></div><div class="meta"></div></div><div class="act"></div>';
+      li.querySelector('.no').textContent='#'+(i+1);
+      li.querySelector('.fname').textContent=f.name;
+      list.appendChild(li);bar.hidden=false;
+      f._dim=dimV;f._cap=capV;
+      li.querySelector('.meta').textContent='等待轉換…（'+fmt(f.size)+'）';
+      queue=queue.then(function(){return convert(f,li);});
+    });
+    bar.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+
+  function fallback(f,q){ // 副檔名是 HEIC 但實際是瀏覽器可直接讀的格式，或 Safari 可直接解碼
+    return createImageBitmap(f).then(function(bmp){
+      var c=document.createElement('canvas');c.width=bmp.width;c.height=bmp.height;
+      var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bmp,0,0);
+      return new Promise(function(res,rej){c.toBlob(function(b){b?res(b):rej(new Error('toBlob'));},'image/jpeg',q);});
+    });
+  }
+
+  function toJpeg(bmp,w,h,q){
+    var c=document.createElement('canvas');c.width=w;c.height=h;
+    var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.imageSmoothingQuality='high';x.drawImage(bmp,0,0,w,h);
+    return new Promise(function(res,rej){c.toBlob(function(b){b?res(b):rej(new Error('toBlob'));},'image/jpeg',q);});
+  }
+  // 依尺寸與大小上限重新輸出
+  function adjust(blob,q,maxDim,capKB){
+    if(!maxDim&&!capKB){return Promise.resolve(blob);}
+    return createImageBitmap(blob).then(function(bmp){
+      var W=bmp.width,H=bmp.height,long=Math.max(W,H),scale=(maxDim&&long>maxDim)?maxDim/long:1;
+      if(!capKB){return toJpeg(bmp,Math.round(W*scale),Math.round(H*scale),q);}
+      var cap=capKB*1024;
+      function attempt(sc){
+        var w=Math.max(1,Math.round(W*sc)),h=Math.max(1,Math.round(H*sc));
+        var lo=0.3,hi=q,best=null;
+        function step(i){
+          if(i>=7){return Promise.resolve(best);}
+          var mid=(lo+hi)/2;
+          return toJpeg(bmp,w,h,mid).then(function(b){
+            if(b.size<=cap){best=b;lo=mid;}else{hi=mid;}
+            return step(i+1);
+          });
+        }
+        return toJpeg(bmp,w,h,q).then(function(b){
+          if(b.size<=cap){return b;}
+          return step(0).then(function(r){
+            if(r){return r;}
+            if(sc<0.1){return b;}
+            return attempt(sc*0.8);
+          });
+        });
+      }
+      return attempt(scale);
+    });
+  }
+
+  function convert(f,li){
+    var meta=li.querySelector('.meta'),q=quality.value/100,
+        maxDim=+f._dim,capKB=+f._cap;
+    meta.textContent='轉換中…';
+    var p=window.heic2any
+      ? heic2any({blob:f,toType:'image/jpeg',quality:q})
+      : Promise.reject(new Error('lib'));
+    return p.catch(function(){return fallback(f,q);}).then(function(out){
+      var blob=Array.isArray(out)?out[0]:out;
+      return adjust(blob,q,maxDim,capKB);
+    }).then(function(blob){
+      var name=baseName(f.name)+'.jpg',url=URL.createObjectURL(blob);
+      results.push({name:name,blob:blob,url:url});
+      li.querySelector('.thumb').style.backgroundImage='url("'+url+'")';
+      meta.textContent='完成　'+fmt(f.size)+' → '+fmt(blob.size);meta.className='meta ok';
+      var a=document.createElement('a');a.className='btn';a.textContent='下載 JPG';a.href=url;a.download=name;
+      li.querySelector('.act').appendChild(a);
+      zipBtn.disabled=false;
+    }).catch(function(){
+      meta.textContent='轉換失敗：檔案可能已損毀，或此瀏覽器無法讀取。可改用 Chrome 或 Safari 再試。';meta.className='meta err';
+    });
+  }
+})();
+</script>
+</body>
+</html>
