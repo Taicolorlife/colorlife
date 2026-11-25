@@ -1937,7 +1937,7 @@
         
         <a class="nav-link" href="#home" aria-current="page" data-i18n="navHome">Home</a>
         <a class="nav-link" href="#news" data-i18n="navNews">News</a>
-        <button class="soon-link" type="button" data-soon="Tools" aria-label="Tools，即將推出"><span data-i18n="navTools">Tools</span> <span class="coming-soon" data-i18n="soon">即將推出</span></button>
+        <a class="nav-link" href="#tools" data-i18n="navTools">Tools</a>
         <a class="nav-link" href="#games" data-i18n="navGames">Games</a>
         <a class="weather-pill is-loading" id="weather-mini" href="weather.html" aria-label="查看完整天氣預報" title="天氣預報">
           <span class="weather-pill-icon" id="wm-icon" aria-hidden="true">⛅</span>
@@ -1976,7 +1976,7 @@
 
       <a class="nav-link" href="#home" data-i18n="navHome">Home</a>
       <a class="nav-link" href="#news" data-i18n="navNews">News</a>
-      <button class="soon-link" type="button" data-soon="Tools"><span data-i18n="navTools">Tools</span> <span class="coming-soon" data-i18n="soon">即將推出</span></button>
+      <a class="nav-link" href="#tools" data-i18n="navTools">Tools</a>
       <a class="nav-link" href="#games" data-i18n="navGames">Games</a>
     </nav>
   </header>
@@ -2095,6 +2095,25 @@
       </div>
     </section>
 
+    <section class="section" id="tools" aria-labelledby="tools-title">
+      <div class="container">
+        <header class="game-header" data-reveal>
+          <p class="section-kicker" data-i18n="toolsKicker">實用工具</p>
+          <h2 id="tools-title" data-i18n="toolsTitle">Tools</h2>
+        </header>
+        <div class="game-grid">
+          <a class="game-card" href="heic-to-jpg.html" data-reveal>
+            <div>
+              <span class="game-index">01</span>
+              <h3 class="game-name" data-i18n="heicTitle">HEIC 轉 JPG</h3>
+              <p class="game-desc" data-i18n="heicDescription">將 HEIC 照片轉為 JPG，支援批次轉換與 ZIP 打包下載。</p>
+            </div>
+            <span class="game-play"><span data-i18n="openTool">開啟工具</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="games" aria-labelledby="games-title">
       <div class="container">
         <header class="game-header" data-reveal>
@@ -2207,7 +2226,12 @@
     "contactKicker": "聯絡",
     "contactTitle": "聯絡我",
     "contactCopy": "Email 與 Instagram",
-    "footerLabel": "頁尾聯絡資訊"
+    "footerLabel": "頁尾聯絡資訊",
+    "toolsKicker": "實用工具",
+    "toolsTitle": "Tools",
+    "heicTitle": "HEIC 轉 JPG",
+    "heicDescription": "將 HEIC 照片轉為 JPG，支援批次轉換與 ZIP 打包下載。",
+    "openTool": "開啟工具"
   },
   "en": {
     "name": "Chia-I Liao",
@@ -2253,7 +2277,12 @@
     "contactKicker": "Get in touch",
     "contactTitle": "Contact me",
     "contactCopy": "Email and Instagram",
-    "footerLabel": "Footer contact information"
+    "footerLabel": "Footer contact information",
+    "toolsKicker": "Useful tools",
+    "toolsTitle": "Tools",
+    "heicTitle": "HEIC to JPG",
+    "heicDescription": "Convert HEIC photos to JPG, with batch conversion and ZIP downloads.",
+    "openTool": "Open tool"
   },
   "fr": {
     "name": "Chia-I Liao",
@@ -2299,7 +2328,12 @@
     "contactKicker": "Échangeons",
     "contactTitle": "Me contacter",
     "contactCopy": "E-mail et Instagram",
-    "footerLabel": "Coordonnées en pied de page"
+    "footerLabel": "Coordonnées en pied de page",
+    "toolsKicker": "Outils pratiques",
+    "toolsTitle": "Outils",
+    "heicTitle": "HEIC vers JPG",
+    "heicDescription": "Convertissez vos photos HEIC en JPG, par lots et avec téléchargement ZIP.",
+    "openTool": "Ouvrir l’outil"
   },
   "it": {
     "name": "Chia-I Liao",
@@ -2345,7 +2379,12 @@
     "contactKicker": "Restiamo in contatto",
     "contactTitle": "Contattami",
     "contactCopy": "E-mail e Instagram",
-    "footerLabel": "Contatti a piè di pagina"
+    "footerLabel": "Contatti a piè di pagina",
+    "toolsKicker": "Strumenti utili",
+    "toolsTitle": "Strumenti",
+    "heicTitle": "Da HEIC a JPG",
+    "heicDescription": "Converti le foto HEIC in JPG, anche in gruppo, e scaricale in un file ZIP.",
+    "openTool": "Apri lo strumento"
   },
   "de": {
     "name": "Chia-I Liao",
@@ -2391,7 +2430,12 @@
     "contactKicker": "Im Austausch",
     "contactTitle": "Kontakt aufnehmen",
     "contactCopy": "E-Mail und Instagram",
-    "footerLabel": "Kontaktinformationen im Fußbereich"
+    "footerLabel": "Kontaktinformationen im Fußbereich",
+    "toolsKicker": "Praktische Tools",
+    "toolsTitle": "Tools",
+    "heicTitle": "HEIC in JPG",
+    "heicDescription": "HEIC-Fotos in JPG umwandeln, mehrere Dateien konvertieren und als ZIP herunterladen.",
+    "openTool": "Tool öffnen"
   },
   "ja": {
     "name": "Chia-I Liao",
@@ -2437,7 +2481,12 @@
     "contactKicker": "ご連絡",
     "contactTitle": "お問い合わせ",
     "contactCopy": "メール・Instagram",
-    "footerLabel": "フッターの連絡先情報"
+    "footerLabel": "フッターの連絡先情報",
+    "toolsKicker": "便利なツール",
+    "toolsTitle": "ツール",
+    "heicTitle": "HEIC を JPG に変換",
+    "heicDescription": "HEIC 写真を JPG に変換。一括変換と ZIP ダウンロードに対応。",
+    "openTool": "ツールを開く"
   },
   "ko": {
     "name": "Chia-I Liao",
@@ -2483,7 +2532,12 @@
     "contactKicker": "연락",
     "contactTitle": "문의하기",
     "contactCopy": "이메일 및 Instagram",
-    "footerLabel": "하단 연락처 정보"
+    "footerLabel": "하단 연락처 정보",
+    "toolsKicker": "유용한 도구",
+    "toolsTitle": "도구",
+    "heicTitle": "HEIC를 JPG로 변환",
+    "heicDescription": "HEIC 사진을 JPG로 변환하고, 여러 파일을 한 번에 처리하여 ZIP으로 다운로드하세요.",
+    "openTool": "도구 열기"
   }
 };
     let homeLanguage = 'zh-Hant';
