@@ -1,0 +1,48 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Update Google Alerts news']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy-website
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Read the latest website files
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Prepare website
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/colorlife-site"
+          rsync -a --exclude='.git/' --exclude='.github/' ./ "$RUNNER_TEMP/colorlife-site/"
+          test -f "$RUNNER_TEMP/colorlife-site/index.html"
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/colorlife-site
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
